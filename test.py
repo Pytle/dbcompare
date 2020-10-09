@@ -1,6 +1,7 @@
 #-- coding:utf-8 --
 
 from lib.mysql import Mysql
+from lib.redis import Redis
 from lib.rabbitmq import Rabbitmq
 import configparser
 import os
