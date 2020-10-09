@@ -40,8 +40,12 @@ class Pri_key_consumer():
         for colunm in colunms:
             colstr = colstr + ',`{}`'.format(colunm)
         sql = 'select  concat_ws(\',\'{1})  from `{2}`.`{3}` where {4} > \'{5}\' and {4} < \'{6}\''.format(priname,colstr,db,table,priname,startpri,endpri)
-        src = self.SRCMYSQL.db_select(self.SRCMYSQL.db_connect(db),sql)[0][0]
-        dst = self.DSTMYSQL.db_select(self.DSTMYSQL.db_connect(db),sql)[0][0]
+        try:
+            src = self.SRCMYSQL.db_select(self.SRCMYSQL.db_connect(db),sql)[0][0]
+            dst = self.DSTMYSQL.db_select(self.DSTMYSQL.db_connect(db),sql)[0][0]
+        except Exception as e:
+            print(self.SRCMYSQL.db_select(self.SRCMYSQL.db_connect(db),sql))
+            return 0
         if src == dst:
             # with open(file,'a+') as f:
             #     f.write('diffprikey:{0}-{1}-{2},sql:{3}\n'.format(db,table,pri,sql))
