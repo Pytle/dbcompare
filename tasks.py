@@ -26,6 +26,8 @@ class Pri_key_consumer():
 
     @app.task
     def comparetable(self,db,table,priname,colunms,pri):
+        if not pri:
+            return 0
         dir = os.path.dirname(os.path.abspath(__file__))
         file = os.path.join(dir,'result.log')
         diff_info = {}

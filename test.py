@@ -71,7 +71,8 @@ def main():
                                                             includeTable=mysql_src_item['include'].split(','))
     #redisIns.str_set('db_table_column_info',db_table_column_info)
 
-
+    db_table_column_info = json.loads(db_table_column_info)
+    
     # 消费者
     consumer = Pri_key_consumer(redisIns,'db_table_column_info',src_db,dst_db)
     #consumer.comparetable.delay(db,table,priname,colunms,pri)
@@ -81,7 +82,7 @@ def main():
         for k,v in tables.items():
             TABLE = k
             PRI = v['prikey']
-            colunms = v['colunms']
+            colunms = v['columns']
             taskstart(src_db,DB,TABLE,PRI,colunms,consumer)
             
                 
