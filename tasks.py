@@ -39,7 +39,7 @@ class Pri_key_consumer():
         # 拼接字段，生成sql语句
         for colunm in colunms:
             colstr = colstr + ',`{}`'.format(colunm)
-        sql = 'select  concat_ws(\',\'{1})  from `{2}`.`{3}` where {4} > {5} and {4} < {6}'.format(priname,colstr,db,table,priname,startpri,endpri)
+        sql = 'select  concat_ws(\',\'{1})  from `{2}`.`{3}` where {4} > \'{5}\' and {4} < \'{6}\''.format(priname,colstr,db,table,priname,startpri,endpri)
         src = self.SRCMYSQL.db_select(self.SRCMYSQL.db_connect(db),sql)[0][0]
         dst = self.DSTMYSQL.db_select(self.DSTMYSQL.db_connect(db),sql)[0][0]
         if src == dst:
