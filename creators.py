@@ -40,8 +40,7 @@ class Pri_key_creator():
             else:
                 endindex = (a+1)*MTU
             temp_pri = [ pri[i][0] for i in range(startindex,endindex) ]  #主键列表一次存储最多MTU个值
-            self.MQ.publish(temp_pri,name)    
-            print('{0}-{1} is ok..'.format(name,temp_pri))
+            return temp_pri
 
 
     def __multi_thread(self):
