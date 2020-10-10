@@ -46,7 +46,7 @@ def compare(db,table,priname,colunms,pri,log,errlog):
         src = SRCMYSQL.db_select(SRCMYSQL.db_connect(db),sql)[0][0]
         dst = DSTMYSQL.db_select(DSTMYSQL.db_connect(db),sql)[0][0]
     except Exception as e:
-        info = "select err info:{0},pri:{1} - {2}".format(e,startpri,endpri)
+        info = "select err info:{0}, sql:{1} ,pri:{2} - {3}\n".format(e,sql,startpri,endpri)
         with open(errlog,'a+') as f1:
             f1.write(info)
         return 255
@@ -58,7 +58,7 @@ def compare(db,table,priname,colunms,pri,log,errlog):
         # 二分法查找不一致的数据
         
         with open(errlog,'a+') as f1:
-            f1.write("{0}-{1}-{2} is not match".format(db,table,startpri + "-" + endpri))
+            f1.write("{0}-{1}-{2} is not match\n".format(db,table,startpri + "-" + endpri))
         return 1
         
             
