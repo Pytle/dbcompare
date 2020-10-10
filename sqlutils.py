@@ -1,6 +1,7 @@
 from lib.mysql import Mysql
 import configparser
 import os
+import json
 
 #读取配置
 basedir = os.path.dirname(os.path.abspath(__file__))    
