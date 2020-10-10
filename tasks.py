@@ -46,8 +46,9 @@ def compare(db,table,priname,colunms,pri,log,errlog):
         src = SRCMYSQL.db_select(SRCMYSQL.db_connect(db),sql)[0][0]
         dst = DSTMYSQL.db_select(DSTMYSQL.db_connect(db),sql)[0][0]
     except Exception as e:
+        info = e,startpri,endpri
         with open(errlog,'a+') as f1:
-            f1.write(e,startpri,endpri)
+            f1.write(info)
         return 255
     if src == dst:
         with open(log,'a+') as f:
