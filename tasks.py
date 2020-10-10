@@ -4,6 +4,7 @@ import os
 import json
 import time
 import configparser
+from sqlutils import SRCMYSQL,DSTMYSQL
 
 #读取配置
 dir = os.path.dirname(os.path.abspath(__file__))
@@ -28,9 +29,9 @@ class test():
     		return x + y
         
 @app.task
-def compare(db,table,priname,colunms,pri,SRCMYSQL,DSTMYSQL):
+def compare(db,table,priname,colunms,pri):
     if not pri:
-        return 0
+        return 0      
     basedir = os.path.dirname(os.path.abspath(__file__))
     logdir = os.path.join(basedir,'log')
     log = os.path.join(logdir,'result.log')

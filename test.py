@@ -8,7 +8,7 @@ from tasks import test,compare
 
 
 
-def taskstart(src_db,dst_db,DB,TABLE,PRI,colunms):
+def taskstart(src_db,DB,TABLE,PRI,colunms):
     MTU = 1000  #主键切片大小
     select_pri_sql = 'select {0} from {1}.{2};'.format(PRI,DB,TABLE)
     conn = src_db.db_connect(DB)
@@ -23,7 +23,7 @@ def taskstart(src_db,dst_db,DB,TABLE,PRI,colunms):
         else:
             endindex = (a+1)*MTU
         temp_pri = [ pri[i][0] for i in range(startindex,endindex) ]  #主键列表一次存储最多MTU个值
-        compare.delay(DB,TABLE,PRI,colunms,temp_pri,src_db,dst_db)
+        compare.delay(DB,TABLE,PRI,colunms,temp_pri)
             
 def main():
     #读取配置
@@ -77,7 +77,7 @@ def main():
             TABLE = k
             PRI = v['prikey']
             colunms = v['columns']
-            taskstart(src_db,dst_db,DB,TABLE,PRI,colunms)
+            taskstart(src_db,DB,TABLE,PRI,colunms)
             
                 
 
