@@ -8,7 +8,7 @@ from tasks import test,compare
 from sqlutils import SRCMYSQL,DSTMYSQL,db_table_column_info
 
 
-def taskstart(src_db,DB,TABLE,PRI,colunms):
+def taskstart(src_db,DB,TABLE,PRI,colunms,log,errlog):
     MTU = 1000  #主键切片大小
     select_pri_sql = 'select {0} from {1}.{2};'.format(PRI,DB,TABLE)
     conn = src_db.db_connect(DB)
@@ -38,7 +38,7 @@ def main():
     logname = "result_" + thistime + ".log"
     errname = "err_" + thistime + ".log"
     log = os.path.join(logdir,logname)
-    errlog = os.path.join(logdir,errlog)      
+    errlog = os.path.join(logdir,errname)      
     
     # 消费者    
     for db,tables in db_table_column_info.items():
