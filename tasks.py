@@ -46,7 +46,7 @@ def compare(db,table,priname,colunms,pri,log,errlog):
         src = SRCMYSQL.db_select(SRCMYSQL.db_connect(db),sql)[0][0]
         dst = DSTMYSQL.db_select(DSTMYSQL.db_connect(db),sql)[0][0]
     except Exception as e:
-        info = e,startpri,endpri
+        info = "select err info:{0},pri:{1} - {2}".format(e,startpri,endpri)
         with open(errlog,'a+') as f1:
             f1.write(info)
         return 255
