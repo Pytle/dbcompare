@@ -27,12 +27,12 @@ def taskstart(src_db,DB,TABLE,PRI,colunms):
             
 def main():
     # 初始化日志目录
+    basedir = os.path.dirname(os.path.abspath(__file__))
     logdir = os.path.join(basedir,'log')
     if not os.path.isdir(logdir):
         os.mkdir(logdir)
         
     # 定义日志名称
-    basedir = os.path.dirname(os.path.abspath(__file__))
     logdir = os.path.join(basedir,'log')
     thistime = time.strftime("%Y%m%d%H%M%S", time.localtime())
     logname = "result_" + thistime + ".log"
