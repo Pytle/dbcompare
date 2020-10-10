@@ -43,10 +43,12 @@ def compare(db,table,priname,colunms,pri,log,errlog):
         colstr = colstr + ',`{}`'.format(colunm)
     sql = 'select  concat_ws(\',\'{1})  from `{2}`.`{3}` where {4} > \'{5}\' and {4} < \'{6}\''.format(priname,colstr,db,table,priname,startpri,endpri)
     try:
-        src = SRCMYSQL.db_select(SRCMYSQL.db_connect(db),sql)[0][0]
-        dst = DSTMYSQL.db_select(DSTMYSQL.db_connect(db),sql)[0][0]
+        srcinfo = SRCMYSQL.db_select(SRCMYSQL.db_connect(db),sql)
+        dstinfo = DSTMYSQL.db_select(DSTMYSQL.db_connect(db),sql)
+        src = srcinfo[0][0]
+        dst = dstinfo[0][0]
     except Exception as e:
-        info = "select err info:{0}, sql:{1} ,pri:{2} - {3}\n".format(e,sql,startpri,endpri)
+        info = "select err info:{0}, sql:{1} ,pri:{2} - {3}\n".format(e,srcinfo,startpri,endpri)
         with open(errlog,'a+') as f1:
             f1.write(info)
         return 255
