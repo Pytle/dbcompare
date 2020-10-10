@@ -1,13 +1,11 @@
 #-- coding:utf-8 --
 
 from lib.mysql import Mysql
-from lib.redis import Redis
-from lib.rabbitmq import Rabbitmq
 import configparser
 import os
 import json
-from time import sleep
-from tasks import test,Pri_key_consumer
+from tasks import test,compare
+from consumers import Pri_key_consumer
 
 
 def taskstart(MYSQL,DB,TABLE,PRI,colunms,consumer):
@@ -25,29 +23,27 @@ def taskstart(MYSQL,DB,TABLE,PRI,colunms,consumer):
         else:
             endindex = (a+1)*MTU
         temp_pri = [ pri[i][0] for i in range(startindex,endindex) ]  #主键列表一次存储最多MTU个值
-        consumer.comparetable.delay(DB,TABLE,PRI,colunms,temp_pri)
+        compare.delay(DB,TABLE,PRI,colunms,temp_pri,consumer)
             
 def main():
     #读取配置
-    dir = os.path.dirname(os.path.abspath(__file__))    
-    file = os.path.join(dir,'config.ini')
+    basedir = os.path.dirname(os.path.abspath(__file__))    
+    file = os.path.join(basedir,'config.ini')
     config = configparser.ConfigParser()
     config.read(file,encoding='utf-8')
     try:
         mysql_src_item = dict(config.items('src_mysql'))
         mysql_dst_item = dict(config.items('dst_mysql'))
-        redis_item = dict(config.items('redis'))
-        mq_item = dict(config.items('rabbitmq'))
     except Exception as e:
         print(e)
         exit()
 
-    # redis、源db、目标db实例创建
-    redisIns = Redis(host=redis_item['host'],
-                        port=redis_item['port'],
-                        password=redis_item['password'],
-                        )
-
+    # 初始化日志目录
+    logdir = os.path.join(basedir,'log')
+    if not os.path.isdir(logdir):
+        os.mkdir(logdir)
+        
+    # 源db、目标db实例创建
     src_db = Mysql(host=mysql_src_item['host'],
                     user=mysql_src_item['user'],
                     port=mysql_src_item['port'],
@@ -74,7 +70,7 @@ def main():
     db_table_column_info = json.loads(db_table_column_info)
     
     # 消费者
-    consumer = Pri_key_consumer(redisIns,'db_table_column_info',src_db,dst_db)
+    consumer = Pri_key_consumer(src_db,dst_db)
     #consumer.comparetable.delay(db,table,priname,colunms,pri)
     
     for db,tables in db_table_column_info.items():
