@@ -5,14 +5,14 @@ import configparser
 import os
 import json
 from tasks import test,compare
-from consumers import Pri_key_consumer
 
 
-def taskstart(MYSQL,DB,TABLE,PRI,colunms,consumer):
+
+def taskstart(src_db,dst_db,DB,TABLE,PRI,colunms):
     MTU = 1000  #主键切片大小
     select_pri_sql = 'select {0} from {1}.{2};'.format(PRI,DB,TABLE)
-    conn = MYSQL.db_connect(DB)
-    pri = MYSQL.db_select(conn,select_pri_sql)
+    conn = src_db.db_connect(DB)
+    pri = src_db.db_select(conn,select_pri_sql)
     num = int(len(pri) / MTU)   #控制生成切片大小
     temp_pri = []       #临时存放主键
     for a in range(num + 1):
@@ -23,7 +23,7 @@ def taskstart(MYSQL,DB,TABLE,PRI,colunms,consumer):
         else:
             endindex = (a+1)*MTU
         temp_pri = [ pri[i][0] for i in range(startindex,endindex) ]  #主键列表一次存储最多MTU个值
-        compare.delay(DB,TABLE,PRI,colunms,temp_pri,consumer)
+        compare.delay(DB,TABLE,PRI,colunms,temp_pri,src_db,dst_db)
             
 def main():
     #读取配置
@@ -65,13 +65,11 @@ def main():
     #初始化数据
     db_table_column_info = src_db.get_db_table_column_info(excludeTable=mysql_src_item['exclude'].split(','),
                                                             includeTable=mysql_src_item['include'].split(','))
-    #redisIns.str_set('db_table_column_info',db_table_column_info)
 
+                                                            
     db_table_column_info = json.loads(db_table_column_info)
     
     # 消费者
-    consumer = Pri_key_consumer(src_db,dst_db)
-    #consumer.comparetable.delay(db,table,priname,colunms,pri)
     
     for db,tables in db_table_column_info.items():
         DB = db
@@ -79,7 +77,7 @@ def main():
             TABLE = k
             PRI = v['prikey']
             colunms = v['columns']
-            taskstart(src_db,DB,TABLE,PRI,colunms,consumer)
+            taskstart(src_db,dst_db,DB,TABLE,PRI,colunms)
             
                 
 

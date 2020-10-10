@@ -40,7 +40,7 @@ class Pri_key_consumer():
             return 0
         else:
             with open(errlog,'a+') as f1:
-                f1.write("{0}-{1}-{2} is not match".format(db,table,startpri"-"endpri))
+                f1.write("{0}-{1}-{2} is not match".format(db,table,startpri + "-" + endpri))
             return 1
         
             
