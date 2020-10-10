@@ -29,13 +29,9 @@ class test():
     		return x + y
         
 @app.task
-def compare(db,table,priname,colunms,pri):
+def compare(db,table,priname,colunms,pri,log,errlog):
     if not pri:
         return 0      
-    basedir = os.path.dirname(os.path.abspath(__file__))
-    logdir = os.path.join(basedir,'log')
-    log = os.path.join(logdir,'result.log')
-    errlog = os.path.join(logdir,'err.log')
     diff_info = {}
     diff_info[db] = {}
     diff_info[db][table]={}
@@ -50,13 +46,16 @@ def compare(db,table,priname,colunms,pri):
         src = SRCMYSQL.db_select(SRCMYSQL.db_connect(db),sql)[0][0]
         dst = DSTMYSQL.db_select(DSTMYSQL.db_connect(db),sql)[0][0]
     except Exception as e:
-        print(SRCMYSQL.db_select(SRCMYSQL.db_connect(db),sql))
+        with open(errlog,'a+') as f1:
+            f1.write(e,startpri,endpri)
         return 255
     if src == dst:
         with open(log,'a+') as f:
             f.write('ok:{0}-{1}-{2},sql:{3}\n'.format(db,table,startpri,sql))
         return 0
     else:
+        # 二分法查找不一致的数据
+        
         with open(errlog,'a+') as f1:
             f1.write("{0}-{1}-{2} is not match".format(db,table,startpri + "-" + endpri))
         return 1

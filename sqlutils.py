@@ -1,5 +1,6 @@
 from lib.mysql import Mysql
 import configparser
+import os
 
 #读取配置
 basedir = os.path.dirname(os.path.abspath(__file__))    
@@ -13,7 +14,7 @@ except Exception as e:
     print(e)
     exit()
     
-src_db = Mysql(host=mysql_src_item['host'],
+SRCMYSQL = Mysql(host=mysql_src_item['host'],
                 user=mysql_src_item['user'],
                 port=mysql_src_item['port'],
                 password=mysql_src_item['password'],
@@ -21,10 +22,21 @@ src_db = Mysql(host=mysql_src_item['host'],
                 dblist=mysql_src_item['db'].split(','),
                 )
 
-dst_db = Mysql(host=mysql_dst_item['host'],
+DSTMYSQL = Mysql(host=mysql_dst_item['host'],
                 user=mysql_dst_item['user'],
                 port=mysql_dst_item['port'],
                 password=mysql_dst_item['password'],
                 charactor=mysql_dst_item['charactor'],
                 dblist=mysql_src_item['db'].split(','),
                 )
+                
+#初始化数据
+db_table_column_info = SRCMYSQL.get_db_table_column_info(excludeTable=mysql_src_item['exclude'].split(','),
+                                                        includeTable=mysql_src_item['include'].split(','))
+
+                                                        
+db_table_column_info = json.loads(db_table_column_info)
+
+
+
+
