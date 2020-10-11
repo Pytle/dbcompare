@@ -28,7 +28,7 @@ class test():
     		time.sleep(3)
     		return x + y
             
-def selector(db,table,priname,colstr,pri,startpri,endpri):
+def selector(db,table,priname,colstr,pri,startpri,endpri,errlog):
     sql = 'select  concat_ws(\',\'{1})  from `{2}`.`{3}` where {4} > \'{5}\' and {4} < \'{6}\''.format(priname,colstr,db,table,priname,startpri,endpri)
     try:
         srcinfo = SRCMYSQL.db_select(SRCMYSQL.db_connect(db),sql)
@@ -47,8 +47,6 @@ def selector(db,table,priname,colstr,pri,startpri,endpri):
 def compare(db,table,priname,colunms,pri,log,errlog):
     if not pri:
         return 0
-    global errlog
-    global log
     diff_info = {}
     diff_info[db] = {}
     diff_info[db][table]={}
@@ -59,7 +57,7 @@ def compare(db,table,priname,colunms,pri,log,errlog):
     for colunm in colunms:
         colstr = colstr + ',`{}`'.format(colunm)
     
-    src,dst,sql = selector(db,table,priname,colstr,pri,startpri,endpri)
+    src,dst,sql = selector(db,table,priname,colstr,pri,startpri,endpri,errlog)
     
     if src == dst:
         with open(log,'a+') as f:
