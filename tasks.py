@@ -58,6 +58,8 @@ def compare(db,table,priname,colunms,pri,log,errlog):
         colstr = colstr + ',`{}`'.format(colunm)
     
     src,dst,sql = selector(db,table,priname,colstr,pri,startpri,endpri,errlog)
+    if src = 255 and dst = 255 and sql = 255:
+        return 255
     
     if src == dst:
         with open(log,'a+') as f:
