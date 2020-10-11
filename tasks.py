@@ -29,7 +29,7 @@ class test():
     		return x + y
             
 def selector(db,table,priname,colstr,pri,startpri,endpri,errlog):
-    sql = 'select  concat_ws(\',\'{1})  from `{2}`.`{3}` where {4} > \'{5}\' and {4} < \'{6}\''.format(priname,colstr,db,table,priname,startpri,endpri)
+    sql = 'select  concat_ws(\',\'{1})  from `{2}`.`{3}` where {4} >= \'{5}\' and {4} <= \'{6}\''.format(priname,colstr,db,table,priname,startpri,endpri)
     try:
         srcinfo = SRCMYSQL.db_select(SRCMYSQL.db_connect(db),sql)
         dstinfo = DSTMYSQL.db_select(DSTMYSQL.db_connect(db),sql)
