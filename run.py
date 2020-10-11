@@ -23,7 +23,9 @@ def taskstart(src_db,DB,TABLE,PRI,colunms,log,errlog):
         else:
             endindex = (a+1)*MTU - 1
         temp_pri = [ pri[i][0] for i in range(startindex,endindex) ]  #主键列表一次存储最多MTU个值
-        compare.delay(DB,TABLE,PRI,colunms,temp_pri,log,errlog)
+        tid = compare.delay(DB,TABLE,PRI,colunms,temp_pri,log,errlog)
+    while(tid):
+        print("finish.")
             
 def main():
     # 初始化日志目录
