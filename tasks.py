@@ -35,18 +35,20 @@ def selector(db,table,priname,colstr,pri,startpri,endpri):
         dstinfo = DSTMYSQL.db_select(DSTMYSQL.db_connect(db),sql)
         src = srcinfo[0][0]
         dst = dstinfo[0][0]
-        return src,dst
+        return src,dst,sql
     except Exception as e:
         info = "select err info:{0}, content:{1} ,pri:{2} - {3}\n".format(e,srcinfo,startpri,endpri)
         with open(errlog,'a+') as f1:
             f1.write(info)
-        return 255,255  
+        return 255,255,255  
     
         
 @app.task
 def compare(db,table,priname,colunms,pri,log,errlog):
     if not pri:
-        return 0      
+        return 0
+    global errlog
+    global log
     diff_info = {}
     diff_info[db] = {}
     diff_info[db][table]={}
@@ -57,7 +59,7 @@ def compare(db,table,priname,colunms,pri,log,errlog):
     for colunm in colunms:
         colstr = colstr + ',`{}`'.format(colunm)
     
-    src,dst = selector(db,table,priname,colstr,pri,startpri,endpri)
+    src,dst,sql = selector(db,table,priname,colstr,pri,startpri,endpri)
     
     if src == dst:
         with open(log,'a+') as f:
