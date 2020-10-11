@@ -37,7 +37,7 @@ def selector(db,table,priname,colstr,pri,startpri,endpri,errlog):
         dst = dstinfo[0][0]
         return src,dst,sql
     except Exception as e:
-        info = "select err info:{0}, content:{1} ,pri:{2} - {3}\n".format(e,srcinfo,startpri,endpri)
+        info = "select err info:{0}, content:{1} , sql:{2} ,pri:{3} - {4}\n".format(e,srcinfo,sql,startpri,endpri)
         with open(errlog,'a+') as f1:
             f1.write(info)
         return 255,255,255  
