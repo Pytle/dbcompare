@@ -28,7 +28,7 @@ class test():
     		time.sleep(3)
     		return x + y
             
-def selector(db,table,priname,colstr,pri,startpri,endpri,errlog):
+def selector(db,table,priname,colstr,startpri,endpri,errlog):
     sql = 'select  concat_ws(\',\'{1})  from `{2}`.`{3}` where {4} >= \'{5}\' and {4} <= \'{6}\''.format(priname,colstr,db,table,priname,startpri,endpri)
     try:
         srcinfo = SRCMYSQL.db_select(SRCMYSQL.db_connect(db),sql)
@@ -57,7 +57,7 @@ def compare(db,table,priname,colunms,pri,log,errlog):
     for colunm in colunms:
         colstr = colstr + ',`{}`'.format(colunm)
     
-    src,dst,sql = selector(db,table,priname,colstr,pri,startpri,endpri,errlog)
+    src,dst,sql = selector(db,table,priname,colstr,startpri,endpri,errlog)
     if src == 255 and dst == 255 and sql == 255:
         return 255
     
@@ -66,10 +66,31 @@ def compare(db,table,priname,colunms,pri,log,errlog):
             f.write('ok:{0}-{1}-{2},sql:{3}\n'.format(db,table,startpri,sql))
         return 0
     else:
-        # 二分法查找不一致的数据
-        
-        with open(errlog,'a+') as f1:
-            f1.write("{0}-{1}-{2} is not match\n".format(db,table,startpri + "-" + endpri))
-        return 1
+        # 切片比较,查找不一致的数据。先每100个数据进行比较，如果比较发现不一致的数据，把100个数据逐个比较
+        length = len(pri)
+        MTU = 100
+        num = int(length / MTU)
+        for a in range(num + 1) :
+            startindex = a * MTU
+            if a == num:            # 如果到了最后一轮，以防不足1000，最后索引就取总长度
+                endindex = len(pri) - 1
+            else:
+                endindex = (a+1)*MTU
+            # 先比较100个    
+            src,dst,sql = selector(db,table,priname,colstr,pri[startindex],pri[endindex],errlog)            
+            if src == dst:
+                continue
+            elif src != dst:
+                for i in range(startindex,endindex):
+                    # 逐项比较
+                    src,dst,sql = selector(db,table,priname,colstr,pri[i],pri[i],errlog)
+                    if src == dst:
+                        continue
+                    else:
+                        with open(errlog,'a+') as f1:
+                            f1.write("{0}-{1}-{2} is not match\n".format(db,table,pri[i]))        
+                            return 1
+            else:
+                return 2
         
             
