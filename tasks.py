@@ -40,7 +40,7 @@ def selector(db,table,priname,colstr,startpri,endpri,errlog):
         info = "select err info:{0}, content:{1} , sql:{2} ,pri:{3} - {4}\n".format(e,srcinfo,sql,startpri,endpri)
         with open(errlog,'a+') as f1:
             f1.write(info)
-        return 255,255,255  
+        return 255,255,255 
     
         
 @app.task
@@ -89,7 +89,7 @@ def compare(db,table,priname,colunms,pri,log,errlog):
                     else:
                         with open(errlog,'a+') as f1:
                             f1.write("{0}-{1}-{2} is not match\n".format(db,table,pri[i]))        
-                            return 1
+                return 1
             else:
                 return 2
         
