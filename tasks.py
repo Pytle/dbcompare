@@ -70,7 +70,7 @@ def compare(db,table,priname,colunms,pri,log,errlog):
         length = len(pri)
         MTU = 100
         num = int(length / MTU)
-        for a in range(num + 1) :
+        for a in range(num) :
             startindex = a * MTU
             if a == num:            # 如果到了最后一轮，以防不足1000，最后索引就取总长度
                 endindex = len(pri) - 1
