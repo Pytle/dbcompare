@@ -75,7 +75,7 @@ def compare(db,table,priname,colunms,pri,log,errlog):
             if a == num:            # 如果到了最后一轮，以防不足1000，最后索引就取总长度
                 endindex = len(pri) - 1
             else:
-                endindex = (a+1)*MTU
+                endindex = (a+1)*MTU - 1
             # 先比较100个    
             src,dst,sql = selector(db,table,priname,colstr,pri[startindex],pri[endindex],errlog)            
             if src == dst:
