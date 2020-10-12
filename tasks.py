@@ -88,13 +88,16 @@ def compare(db,table,priname,colunms,pri,log,errlog):
             else:
                 endindex = (a+1)*MTU -1
             # 先比较100个
-            startpri = pri[startindex]
+            try:
+                startpri = pri[startindex]
+            except Exception as e:
+                print("length:"length)
+                print("endindex:"startindex)            
             try:
                 endpri = pri[endindex]
             except Exception as e:
-                print(length)
-                print(endindex)
-                print(e)
+                print("length:"length)
+                print("endindex:"endindex)
             src,dst,sql = selector(db,table,priname,colstr,startpri,endpri,errlog)            
             if src == dst:
                 continue
