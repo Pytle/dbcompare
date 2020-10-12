@@ -86,6 +86,6 @@ def compare(db,table,priname,colunms,pri,log,errlog):
                 continue
             else:
                 with open(errlog,'a+') as f1:
-                    f1.write("{0}-{1}-{2} is not match\n".format(db,table,pri[i]))        
+                    f1.write("{0}-{1}-{2} is not match\n".format(db,table,primary))        
         return 1
             
