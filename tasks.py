@@ -100,6 +100,8 @@ def compare(db,table,priname,colunms,pri,log,errlog):
             except Exception as e:
                 print("length:%d" % length)
                 print("endindex:%d" % endindex)
+            print("startindex:%d" % startindex)
+            print("endindex:%d" % endindex)
             src,dst,sql = selector(db,table,priname,colstr,startpri,endpri,errlog)            
             if src == dst:
                 continue
