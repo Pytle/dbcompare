@@ -88,8 +88,8 @@ def compare(db,table,priname,colunms,pri,log,errlog):
             else:
                 endindex = (a+1)*MTU -1
             # 先比较100个
+            startpri = pri[startindex]
             try:
-                startpri = pri[startindex]
                 endpri = pri[endindex]
             except Exception as e:
                 print(length)
