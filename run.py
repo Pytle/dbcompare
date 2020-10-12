@@ -21,7 +21,7 @@ def taskstart(src_db,DB,TABLE,PRI,colunms,log,errlog):
         if a == num:            # 如果到了最后一轮，以防不足1000，最后索引就取总长度
             endindex = len(pri)
         else:
-            endindex = (a+1)*MTU
+            endindex = (a+1)*MTU - 1
         temp_pri = [ pri[i][0] for i in range(startindex,endindex) ]  #主键列表一次存储最多MTU个值
         tid = compare.delay(DB,TABLE,PRI,colunms,temp_pri,log,errlog)
     if tid.get():
