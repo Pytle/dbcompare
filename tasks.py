@@ -86,14 +86,15 @@ def compare(db,table,priname,colunms,pri,log,errlog):
             if a == num:            # 如果到了最后一轮，以防不足MTU值，最后索引就取总长度-1
                 endindex = -1
             else:
-                endindex = (a+1)*MTU 
+                endindex = (a+1)*MTU -1
             # 先比较100个
             try:
                 startpri = pri[startindex]
                 endpri = pri[endindex]
-            except:
+            except Exception as e:
                 print(length)
                 print(endindex)
+                print(e)
             src,dst,sql = selector(db,table,priname,colstr,startpri,endpri,errlog)            
             if src == dst:
                 continue
