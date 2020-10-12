@@ -46,7 +46,7 @@ def selector(db,table,priname,colstr,startpri,endpri,errlog):
 @app.task
 def compare(db,table,priname,colunms,pri,log,errlog):
     if not pri:
-        return 0
+        return 3
     diff_info = {}
     diff_info[db] = {}
     diff_info[db][table]={}
@@ -76,6 +76,7 @@ def compare(db,table,priname,colunms,pri,log,errlog):
         with open(log,'a+') as f:
             f.write('ok:{0}-{1} {2}-{3},sql:{4}\n'.format(db,table,startpri,endpri,sql))
         return 0
+        
     else:
         # 切片比较,查找不一致的数据。先每100个数据进行比较，如果比较发现不一致的数据，把100个数据逐个比较
         length = len(pri)
