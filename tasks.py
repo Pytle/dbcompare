@@ -91,13 +91,13 @@ def compare(db,table,priname,colunms,pri,log,errlog):
             try:
                 startpri = pri[startindex]
             except Exception as e:
-                print("length:"length)
-                print("endindex:"startindex)            
+                print("length%d:" % length)
+                print("endindex:%d" % startindex)            
             try:
                 endpri = pri[endindex]
             except Exception as e:
-                print("length:"length)
-                print("endindex:"endindex)
+                print("length:%d" % length)
+                print("endindex:%d" % endindex)
             src,dst,sql = selector(db,table,priname,colstr,startpri,endpri,errlog)            
             if src == dst:
                 continue
