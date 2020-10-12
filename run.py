@@ -24,7 +24,7 @@ def taskstart(src_db,DB,TABLE,PRI,colunms,log,errlog):
             endindex = (a+1)*MTU - 1
         temp_pri = [ pri[i][0] for i in range(startindex,endindex) ]  #主键列表一次存储最多MTU个值
         tid = compare.delay(DB,TABLE,PRI,colunms,temp_pri,log,errlog)
-    while(tid.get()):
+    if tid.get():
         print("finish.")
             
 def main():
