@@ -79,13 +79,42 @@ def compare(db,table,priname,colunms,pri,log,errlog):
         return 0
         
     else:
-        for primary in pri:
-            # 逐项比较
-            src,dst,sql = selector(db,table,priname,colstr,primary,primary,errlog)
+        # 切片比较,查找不一致的数据。先每100个数据进行比较，如果比较发现不一致的数据，把100个数据逐个比较
+        length = len(pri)
+        MTU = 100
+        num = int(length / MTU)
+        for a in range(num) :
+            startindex = a * MTU
+            if a == num:            # 如果到了最后一轮，以防不足MTU值，最后索引就取总长度-1
+                endindex = -1
+            else:
+                endindex = (a+1)*MTU - 1
+            # 先比较100个
+            try:
+                startpri = pri[startindex]
+            except Exception as e:
+                print("length:%d" % length)
+                print("startindex:%d" % startindex)
+                
+            try:
+                endpri = pri[endindex]
+            except Exception as e:
+                print("length:%d" % length)
+                print("endindex:%d" % endindex)
+            print("startindex:%d" % startindex)
+            print("endindex:%d" % endindex)
+            src,dst,sql = selector(db,table,priname,colstr,startpri,endpri,errlog)            
             if src == dst:
                 continue
-            else:
-                with open(errlog,'a+') as f1:
-                    f1.write("{0}-{1}-{2} is not match\n".format(db,table,pri[i]))        
+            elif src != dst:
+                for i in range(startindex,endindex):
+                    # 逐项比较
+                    src,dst,sql = selector(db,table,priname,colstr,pri[i],pri[i],errlog)
+                    if src == dst:
+                        continue
+                    else:
+                        with open(errlog,'a+') as f1:
+                            f1.write("{0}-{1}-{2} is not match\n".format(db,table,pri[i]))        
+
         return 1
             
