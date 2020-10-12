@@ -87,8 +87,10 @@ def compare(db,table,priname,colunms,pri,log,errlog):
                 endindex = len(pri) - 1
             else:
                 endindex = (a+1)*MTU
-            # 先比较100个       
-            src,dst,sql = selector(db,table,priname,colstr,pri[startindex],pri[endindex],errlog)            
+            # 先比较100个
+            startpri = pri[startindex]
+            endpri = pri[endindex]
+            src,dst,sql = selector(db,table,priname,colstr,startpri,endpri,errlog)            
             if src == dst:
                 continue
             elif src != dst:
