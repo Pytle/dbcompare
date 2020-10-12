@@ -92,6 +92,7 @@ def compare(db,table,priname,colunms,pri,log,errlog):
                 startpri = pri[startindex]
                 endpri = pri[endindex]
             except:
+                print(length)
                 print(endindex)
             src,dst,sql = selector(db,table,priname,colstr,startpri,endpri,errlog)            
             if src == dst:
