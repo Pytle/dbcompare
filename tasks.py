@@ -59,11 +59,22 @@ def compare(db,table,priname,colunms,pri,log,errlog):
     
     src,dst,sql = selector(db,table,priname,colstr,startpri,endpri,errlog)
     if src == 255 and dst == 255 and sql == 255:
-        return 255
-    
+        try:
+            for primary in pri:
+                src,dst,sql = selector(db,table,priname,colstr,primary,primary,errlog)
+                if src == dst:
+                    continue
+                else:
+                    with open(errlog,'a+') as f1:
+                        f1.write("{0}-{1}-{2} is not match\n".format(db,table,primary))
+            return 2
+        except Exception as e:
+            return 255
+        
+        
     if src == dst:
         with open(log,'a+') as f:
-            f.write('ok:{0}-{1}-{2},sql:{3}\n'.format(db,table,startpri,sql))
+            f.write('ok:{0}-{1} {2}-{3},sql:{4}\n'.format(db,table,startpri,endpri,sql))
         return 0
     else:
         # 切片比较,查找不一致的数据。先每100个数据进行比较，如果比较发现不一致的数据，把100个数据逐个比较
