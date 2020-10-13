@@ -28,25 +28,41 @@ class test():
     		time.sleep(3)
     		return x + y
             
+            
+def splitlist(LIST,length):
+    '''
+        传入一个列表，将列表切成以length为长度的子列表，然后列表返回。
+    '''
+    buffer_list = []
+    for index in range(0,len(LIST),length):
+        if index+length > len(LIST):
+            endindex = len(LIST)
+        else:
+            endindex = index+length
+        temp_list = [LIST[i] for i in range(index,endindex) ]
+        buffer_list.append(temp_list)
+    return buffer_list
+
+    
 def selector(db,table,priname,colstr,startpri,endpri,errlog):
     sql = 'select  concat_ws(\',\'{1})  from `{2}`.`{3}` where {4} >= \'{5}\' and {4} <= \'{6}\''.format(priname,colstr,db,table,priname,startpri,endpri)
     try:
         srcinfo = SRCMYSQL.db_select(SRCMYSQL.db_connect(db),sql)
         dstinfo = DSTMYSQL.db_select(DSTMYSQL.db_connect(db),sql)
         src = srcinfo[0][0]
-        dst = dstinfo[0][0]
-        return src,dst,sql
+        dst = dstinfo[0][0]       
     except Exception as e:
-        info = "select err info:{0}, content:{1} , sql:{2} ,pri:{3} - {4}\n".format(e,srcinfo,sql,startpri,endpri)
-        with open(errlog,'a+') as f1:
-            f1.write(info)
-        return 255,255,255 
-    
+        return 255
+        
+        if src == dst:
+            return 1      
+        else :
+            return 0
         
 @app.task
 def compare(db,table,priname,colunms,pri,log,errlog):
     if not pri:
-        return 3
+        return 254
     diff_info = {}
     diff_info[db] = {}
     diff_info[db][table]={}
@@ -57,28 +73,63 @@ def compare(db,table,priname,colunms,pri,log,errlog):
     for colunm in colunms:
         colstr = colstr + ',`{}`'.format(colunm)
     
+    result = selector(db,table,priname,colstr,startpri,endpri,errlog)
+    
     # 处理255情况
-    src,dst,sql = selector(db,table,priname,colstr,startpri,endpri,errlog)
-    if src == 255 and dst == 255 and sql == 255:
-        try:
-            for primary in pri:
-                src,dst,sql = selector(db,table,priname,colstr,primary,primary,errlog)
-                if src == dst:
+    if result == 255:
+        # 逐项比较
+        for primary in pri:
+            try:
+                r = selector(db,table,priname,colstr,primary,primary,errlog)
+                if r == 1:
                     continue
-                else:
+                elif not r:
                     with open(errlog,'a+') as f1:
                         f1.write("{0}-{1}-{2} is not match\n".format(db,table,primary))
-            return 2
-        except Exception as e:
-            return 255
+                else:
+                    raise Exception("Empty result.")
+            except Exception as e:
+                with open(errlog,'a+') as f1:
+                    f1.write("{0}-{1}-{2} error:{3}\n".format(db,table,primary,e))        
+        return 3
         
         
-    if src == dst:
+    elif result = 1:
         with open(log,'a+') as f:
             f.write('ok:{0}-{1} {2}-{3},sql:{4}\n'.format(db,table,startpri,endpri,sql))
         return 0
         
-    else:
+    elif not result:
+        MTU = 100
+        result_list = splitlist(pri,MTU)
+        for _list in result_list:
+            startpri = _list[0]
+            endpri = _list[-1]
+            r = selector(db,table,priname,colstr,startpri,endpri,errlog)
+            if r = 1 :
+                continue
+            else:
+                # 逐项比较
+                for primary in _list:
+                    try:
+                        _r = selector(db,table,priname,colstr,primary,primary,errlog)
+                        if _r == 1:
+                            continue
+                        elif not _r:
+                            with open(errlog,'a+') as f1:
+                                f1.write("{0}-{1}-{2} is not match\n".format(db,table,primary))
+                        else:
+                            raise Exception("Empty result.")
+                    except Exception as e:
+                        with open(errlog,'a+') as f1:
+                            f1.write("{0}-{1}-{2} error:{3}\n".format(db,table,primary,e))
+        return 2
+        
+        else:
+            print("unknow error.")
+            return 255
+        
+        '''
         # 切片比较,查找不一致的数据。先每100个数据进行比较，如果比较发现不一致的数据，把100个数据逐个比较
         length = len(pri)
         MTU = 100
@@ -117,4 +168,4 @@ def compare(db,table,priname,colunms,pri,log,errlog):
                             f1.write("{0}-{1}-{2} is not match\n".format(db,table,pri[i]))        
 
         return 1
-            
+    '''
