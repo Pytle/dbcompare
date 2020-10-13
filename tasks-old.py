@@ -94,7 +94,7 @@ def compare(db,table,priname,colunms,pri,log,errlog):
         return 3
         
         
-    elif result = 1:
+    elif result == 1:
         with open(log,'a+') as f:
             f.write('ok:{0}-{1} {2}-{3},sql:{4}\n'.format(db,table,startpri,endpri,sql))
         return 0
@@ -106,7 +106,7 @@ def compare(db,table,priname,colunms,pri,log,errlog):
             startpri = _list[0]
             endpri = _list[-1]
             r = selector(db,table,priname,colstr,startpri,endpri,errlog)
-            if r = 1 :
+            if r == 1 :
                 continue
             else:
                 # 逐项比较
