@@ -4,7 +4,7 @@ import os
 import json
 import time
 import configparser
-from sqlutils import SRCMYSQL,DSTMYSQL
+from sqlutils import SRCMYSQL,DSTMYSQL,redisins
 
 #读取配置
 dir = os.path.dirname(os.path.abspath(__file__))
@@ -44,7 +44,8 @@ def splitlist(LIST,length):
     return buffer_list
 
     
-def selector(db,table,priname,colstr,startpri,endpri,errlog):
+def selector(db,table,priname,colstr,startpri,endpri):
+    rd = 
     sql = 'select  concat_ws(\',\'{1})  from `{2}`.`{3}` where {4} >= \'{5}\' and {4} <= \'{6}\''.format(priname,colstr,db,table,priname,startpri,endpri)
     try:
         srcinfo = SRCMYSQL.db_select(SRCMYSQL.db_connect(db),sql)
@@ -60,9 +61,14 @@ def selector(db,table,priname,colstr,startpri,endpri,errlog):
             return 0
         
 @app.task
-def compare(db,table,priname,colunms,pri,log,errlog):
+def compare(db,table,priname,colunms,pri):
     if not pri:
         return 254
+    # redis存储    
+    rd = redisins.getins()
+    errkey = "error-{0}-{1}".format(db,table)
+    okkey = "ok-{0}-{1}".format(db,table)
+    
     diff_info = {}
     diff_info[db] = {}
     diff_info[db][table]={}
@@ -73,30 +79,43 @@ def compare(db,table,priname,colunms,pri,log,errlog):
     for colunm in colunms:
         colstr = colstr + ',`{}`'.format(colunm)
     
-    result = selector(db,table,priname,colstr,startpri,endpri,errlog)
+    result = selector(db,table,priname,colstr,startpri,endpri)
     
     # 处理255情况
     if result == 255:
         # 逐项比较
         for primary in pri:
             try:
-                r = selector(db,table,priname,colstr,primary,primary,errlog)
+                r = selector(db,table,priname,colstr,primary,primary)
                 if r == 1:
                     continue
                 elif not r:
+                errinfo = "{0}-{1}-{2} is not match\n".format(db,table,primary)     
+                rd.rpush(errkey,errinfo)
+                
+                '''
                     with open(errlog,'a+') as f1:
                         f1.write("{0}-{1}-{2} is not match\n".format(db,table,primary))
+                '''
                 else:
                     raise Exception("Empty result.")
             except Exception as e:
+                errinfo = "{0}-{1}-{2} error:{3}\n".format(db,table,primary,e)
+                rd.lpush(errkey,errinfo)
+                '''
                 with open(errlog,'a+') as f1:
-                    f1.write("{0}-{1}-{2} error:{3}\n".format(db,table,primary,e))        
+                    f1.write("{0}-{1}-{2} error:{3}\n".format(db,table,primary,e))   
+                '''
         return 2
         
         
     elif result == 1:
+        okinfo = 'ok:{0}-{1} {2}-{3},sql:{4}\n'.format(db,table,startpri,endpri,sql)
+        rd.lpush(okkey,okinfo)
+        '''
         with open(log,'a+') as f:
             f.write('ok:{0}-{1} {2}-{3},sql:{4}\n'.format(db,table,startpri,endpri,sql))
+        '''
         return 0
         
     elif not result:
@@ -105,24 +124,32 @@ def compare(db,table,priname,colunms,pri,log,errlog):
         for _list in result_list:
             startpri = _list[0]
             endpri = _list[-1]
-            r = selector(db,table,priname,colstr,startpri,endpri,errlog)
+            r = selector(db,table,priname,colstr,startpri,endpri)
             if r == 1 :
                 continue
             else:
                 # 逐项比较
                 for primary in _list:
                     try:
-                        _r = selector(db,table,priname,colstr,primary,primary,errlog)
+                        _r = selector(db,table,priname,colstr,primary,primary)
                         if _r == 1:
                             continue
                         elif not _r:
+                            errinfo = "{0}-{1}-{2} is not match\n".format(db,table,primary)     
+                            rd.lpush(errkey,errinfo)
+                            '''
                             with open(errlog,'a+') as f1:
                                 f1.write("{0}-{1}-{2} is not match\n".format(db,table,primary))
+                            '''
                         else:
                             raise Exception("Empty result.")
                     except Exception as e:
+                        errinfo = "{0}-{1}-{2} error:{3}\n".format(db,table,primary,e)
+                        rd.lpush(errkey,errinfo)
+                        '''
                         with open(errlog,'a+') as f1:
                             f1.write("{0}-{1}-{2} error:{3}\n".format(db,table,primary,e))
+                        '''
         return 1
         
     else:

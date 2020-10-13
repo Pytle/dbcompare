@@ -54,6 +54,9 @@ class Redis():
             print('删除失败.该key不存在')
             return False
 
+    def getins(self):
+        return self.r
+
     @property
     def clean_redis(self):
         self.r.flushdb() #清空redis

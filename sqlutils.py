@@ -1,4 +1,5 @@
 from lib.mysql import Mysql
+from lib.redis import Redis
 import configparser
 import os
 import json
@@ -11,6 +12,7 @@ config.read(file,encoding='utf-8')
 try:
     mysql_src_item = dict(config.items('src_mysql'))
     mysql_dst_item = dict(config.items('dst_mysql'))
+    redis_item = dict(config.items('redis'))
 except Exception as e:
     print(e)
     exit()
@@ -29,6 +31,11 @@ DSTMYSQL = Mysql(host=mysql_dst_item['host'],
                 password=mysql_dst_item['password'],
                 charactor=mysql_dst_item['charactor'],
                 dblist=mysql_src_item['db'].split(','),
+                )
+                
+redisins = Redis(host=redis_item['host'],
+                port=redis_item['port'],
+                password=redis_item['password'],
                 )
                 
 #初始化数据

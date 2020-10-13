@@ -5,7 +5,7 @@ import os
 import time
 import json
 from tasks import test,compare
-from sqlutils import SRCMYSQL,DSTMYSQL,db_table_column_info
+from sqlutils import SRCMYSQL,DSTMYSQL,db_table_column_info,redisins
 
 
 def taskstart(src_db,DB,TABLE,PRI,colunms,log,errlog):
@@ -15,6 +15,16 @@ def taskstart(src_db,DB,TABLE,PRI,colunms,log,errlog):
     pri = src_db.db_select(conn,select_pri_sql)
     num = int(len(pri) / MTU)   #控制生成切片大小
     temp_pri = []       #临时存放主键
+    
+    # 删除key
+    rd = redisins.getins()
+    errkeyname = "error-{0}-{1}".format(db,table)
+    if rd.keys(errkeyname):
+        rd.delete(*rd.keys(errkeyname))
+    okkeyname = "ok-{0}-{1}".format(db,table)
+    if rd.keys(okkeyname):
+        rd.delete(*rd.keys(okkeyname)
+        
     for a in range(num + 1):
         startindex = a*MTU
         temp_pri = []           #初始化主键列表
@@ -22,8 +32,8 @@ def taskstart(src_db,DB,TABLE,PRI,colunms,log,errlog):
             endindex =  len(pri)
         else:
             endindex = (a+1)*MTU 
-        temp_pri = [ pri[i][0] for i in range(startindex,endindex) ]  #主键列表一次存储最多MTU个值
-        tid = compare.delay(DB,TABLE,PRI,colunms,temp_pri,log,errlog)
+        temp_pri = [ pri[i][0] for i in range(startindex,endindex) ]  #主键列表一次存储最多MTU个值                  
+        tid = compare.delay(DB,TABLE,PRI,colunms,temp_pri)
     if tid.get():
         print("finish.")
             
@@ -40,16 +50,23 @@ def main():
     logname = "result_" + thistime + ".log"
     errname = "err_" + thistime + ".log"
     log = os.path.join(logdir,logname)
-    errlog = os.path.join(logdir,errname)      
+    errlog = os.path.join(logdir,errname)
+
     
     # 消费者    
     for db,tables in db_table_column_info.items():
         DB = db
+        rd = redisins.getins()
         for k,v in tables.items():
             TABLE = k
             PRI = v['prikey']
             colunms = v['columns']
             taskstart(SRCMYSQL,DB,TABLE,PRI,colunms,log,errlog)
+            
+            errkeyname = "error-{0}-{1}".format(db,table)
+            print("errinfo:{0}".format(rd.lrange(errkeyname,0,1)))
+            okkeyname = "ok-{0}-{1}".format(db,table)
+            print("okinfo:{0}".format(rd.lrange(okkeyname,0,1)))
             
                 
 
