@@ -89,9 +89,8 @@ def compare(db,table,priname,colunms,pri):
                 if r == 1:
                     continue
                 elif not r:
-                errinfo = "{0}-{1}-{2} is not match\n".format(db,table,primary)     
-                rd.rpush(errkey,errinfo)
-                
+                    errinfo = "{0}-{1}-{2} is not match\n".format(db,table,primary)     
+                    rd.rpush(errkey,errinfo)                
                 '''
                     with open(errlog,'a+') as f1:
                         f1.write("{0}-{1}-{2} is not match\n".format(db,table,primary))
