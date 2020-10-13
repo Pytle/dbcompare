@@ -45,7 +45,6 @@ def splitlist(LIST,length):
 
     
 def selector(db,table,priname,colstr,startpri,endpri):
-    rd = 
     sql = 'select  concat_ws(\',\'{1})  from `{2}`.`{3}` where {4} >= \'{5}\' and {4} <= \'{6}\''.format(priname,colstr,db,table,priname,startpri,endpri)
     try:
         srcinfo = SRCMYSQL.db_select(SRCMYSQL.db_connect(db),sql)
