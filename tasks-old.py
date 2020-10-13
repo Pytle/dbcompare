@@ -125,9 +125,9 @@ def compare(db,table,priname,colunms,pri,log,errlog):
                             f1.write("{0}-{1}-{2} error:{3}\n".format(db,table,primary,e))
         return 2
         
-        else:
-            print("unknow error.")
-            return 255
+    else:
+        print("unknow error.")
+        return 255
         
         '''
         # 切片比较,查找不一致的数据。先每100个数据进行比较，如果比较发现不一致的数据，把100个数据逐个比较
