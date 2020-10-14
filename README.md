@@ -3,9 +3,9 @@
 
 # 环境
 centos7.4  
-python3.7.4
-celery5.0
-mariadb5.6
+python3.7.4  
+celery5.0  
+mariadb5.6  
 
 # 用法
 ## 修改config.ini数据。
