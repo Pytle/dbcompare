@@ -64,9 +64,9 @@ def main():
             colunms = v['columns']
             taskstart(SRCMYSQL,DB,TABLE,PRI,colunms,log,errlog)
             
-            errkeyname = "error-{0}-{1}".format(db,table)
+            errkeyname = "error-{0}-{1}".format(DB,TABLE)
             print("errinfo:{0}".format(rd.lrange(errkeyname,0,1)))
-            okkeyname = "ok-{0}-{1}".format(db,table)
+            okkeyname = "ok-{0}-{1}".format(DB,TABLE)
             print("okinfo:{0}".format(rd.lrange(okkeyname,0,1)))
             
                 
