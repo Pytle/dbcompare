@@ -9,7 +9,7 @@ mariadb5.6
 
 # 用法
 ## 修改config.ini数据。
-### src_mysql 指源数据库
+src_mysql 指源数据库
 host 主机IP  
 user 数据库用户名  
 password 数据库密码  
