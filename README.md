@@ -9,14 +9,14 @@ mariadb5.6
 
 # 用法
 ## 修改config.ini数据。
-src_mysql 指源数据库
-host 主机IP
-user 数据库用户名
-password 数据库密码
-db 需要校验的库。多个库用","隔开
-include 配置说明：all表示校验所有表 。检验特定几个表：表名用","隔开
-exclude 配置说明：过滤特定表。表名用","隔开。优先级比include低
-
+### src_mysql 指源数据库
+host 主机IP  
+user 数据库用户名  
+password 数据库密码  
+db 需要校验的库。多个库用","隔开  
+include 配置说明：all表示校验所有表 。检验特定几个表：表名用","隔开  
+exclude 配置说明：过滤特定表。表名用","隔开。优先级比include低  
+  
 redis需要自行额外安装，建议使用docker安装：
 ```
 	docker pull redis
