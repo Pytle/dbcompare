@@ -65,10 +65,25 @@ def main():
             taskstart(SRCMYSQL,DB,TABLE,PRI,colunms)
             
             errkeyname = "error-{0}-{1}".format(DB,TABLE)
-            print("errinfo:{0}".format(rd.lrange(errkeyname,0,-1)))
+            errinfo = rd.lrange(errkeyname,0,-1)
             okkeyname = "ok-{0}-{1}".format(DB,TABLE)
-            print("okinfo:{0}\n".format(rd.lrange(okkeyname,0,-1)))
+            okinfo = rd.lrange(okkeyname,0,-1)
             
+            errdict = {}
+            errdict[errkeyname] = errinfo
+            errdict = json.dumps(errdict)
+            okdict = {}
+            okdict[okkeyname] = okinfo
+            okdict = json.dumps(okdict)
+            
+            with open(errlog,'a+') as f:
+                f.write("{0}\n".format(errdict))
+            f.close()
+            
+            with open(log,'a+') as f1:
+                f1.write("{0}\n".format(okdict))
+            f1.close()
+             
                 
 
 if __name__ == '__main__':
