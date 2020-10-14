@@ -43,14 +43,6 @@ def main():
     log = os.path.join(logdir,logname)
     errlog = os.path.join(logdir,errname)
 
-    # 初始化redis,删除key
-    rd = redisins.getins()
-    errkeyname = "error-{0}-{1}".format(DB,TABLE)
-    if rd.keys(errkeyname):
-        rd.delete(errkeyname)
-    okkeyname = "ok-{0}-{1}".format(DB,TABLE)
-    if rd.keys(okkeyname):
-        rd.delete(okkeyname)
         
     # 消费者    
     for db,tables in db_table_column_info.items():
@@ -62,6 +54,15 @@ def main():
             colunms = v['columns']
             taskstart(SRCMYSQL,DB,TABLE,PRI,colunms)
             
+            # 初始化redis,删除key
+            rd = redisins.getins()
+            errkeyname = "error-{0}-{1}".format(DB,TABLE)
+            if rd.keys(errkeyname):
+                rd.delete(errkeyname)
+            okkeyname = "ok-{0}-{1}".format(DB,TABLE)
+            if rd.keys(okkeyname):
+                rd.delete(okkeyname)
+        
             errkeyname = "error-{0}-{1}".format(DB,TABLE)
             print("errinfo:{0}".format(rd.lrange(errkeyname,0,1)))
             okkeyname = "ok-{0}-{1}".format(DB,TABLE)

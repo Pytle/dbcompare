@@ -89,14 +89,17 @@ def compare(db,table,priname,colunms,pri):
                 if r == 1:
                     #okinfo = 'ok:{0}-{1} {2}-{3},sql:{4}\n'.format(db,table,primary,primary,sql)
                     rd.rpush(okkey,primary)
+                    print("r==1 push ok")
                 elif not r:
                     #errinfo = "{0}-{1}-{2} is not match\n".format(db,table,primary)     
-                    rd.rpush(errkey,primary)                              
+                    rd.rpush(errkey,primary)
+                    print("not r push ok")
                 else:
                     raise Exception("Empty result.")
             except Exception as e:
                 errinfo = "{0}-{1}-{2} error:{3}".format(db,table,primary,e)
                 rd.rpush(errkey,errinfo)
+                print("e push ok")
                 '''
                 with open(errlog,'a+') as f1:
                     f1.write("{0}-{1}-{2} error:{3}\n".format(db,table,primary,e))   
@@ -108,6 +111,7 @@ def compare(db,table,priname,colunms,pri):
         #okinfo = 'ok:{0}-{1} {2}-{3},sql:{4}\n'.format(db,table,startpri,endpri,sql)
         okinfo = "{0}-{1}".format(startpri,endpri)
         rd.rpush(okkey,okinfo)
+        print("result==1 push ok")
         '''
         with open(log,'a+') as f:
             f.write('ok:{0}-{1} {2}-{3},sql:{4}\n'.format(db,table,startpri,endpri,sql))
@@ -133,6 +137,7 @@ def compare(db,table,priname,colunms,pri):
                         elif not _r:
                             #errinfo = "{0}-{1}-{2} is not match\n".format(primary)     
                             rd.rpush(errkey,primary)
+                            print("not _r push ok")
                             '''
                             with open(errlog,'a+') as f1:
                                 f1.write("{0}-{1}-{2} is not match\n".format(db,table,primary))
@@ -142,6 +147,7 @@ def compare(db,table,priname,colunms,pri):
                     except Exception as e:
                         #errinfo = "{0}-{1}-{2} error:{3}\n".format(db,table,primary,e)
                         rd.rpush(errkey,primary)
+                        print("e push ok")
                         '''
                         with open(errlog,'a+') as f1:
                             f1.write("{0}-{1}-{2} error:{3}\n".format(db,table,primary,e))
