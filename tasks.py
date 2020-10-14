@@ -87,15 +87,16 @@ def compare(db,table,priname,colunms,pri):
             try:
                 r = selector(db,table,priname,colstr,primary,primary)
                 if r == 1:
-                    continue
+                    #okinfo = 'ok:{0}-{1} {2}-{3},sql:{4}\n'.format(db,table,primary,primary,sql)
+                    rd.rpush(okkey,primary)
                 elif not r:
-                    errinfo = "{0}-{1}-{2} is not match\n".format(db,table,primary)     
-                    rd.rpush(errkey,errinfo)                              
+                    #errinfo = "{0}-{1}-{2} is not match\n".format(db,table,primary)     
+                    rd.rpush(errkey,primary)                              
                 else:
                     raise Exception("Empty result.")
             except Exception as e:
-                errinfo = "{0}-{1}-{2} error:{3}\n".format(db,table,primary,e)
-                rd.lpush(errkey,errinfo)
+                errinfo = "{0}-{1}-{2} error:{3}".format(db,table,primary,e)
+                rd.rpush(errkey,errinfo)
                 '''
                 with open(errlog,'a+') as f1:
                     f1.write("{0}-{1}-{2} error:{3}\n".format(db,table,primary,e))   
@@ -104,8 +105,9 @@ def compare(db,table,priname,colunms,pri):
         
         
     elif result == 1:
-        okinfo = 'ok:{0}-{1} {2}-{3},sql:{4}\n'.format(db,table,startpri,endpri,sql)
-        rd.lpush(okkey,okinfo)
+        #okinfo = 'ok:{0}-{1} {2}-{3},sql:{4}\n'.format(db,table,startpri,endpri,sql)
+        okinfo = "{0}-{1}".format(startpri,endpri)
+        rd.rpush(okkey,okinfo)
         '''
         with open(log,'a+') as f:
             f.write('ok:{0}-{1} {2}-{3},sql:{4}\n'.format(db,table,startpri,endpri,sql))
@@ -129,8 +131,8 @@ def compare(db,table,priname,colunms,pri):
                         if _r == 1:
                             continue
                         elif not _r:
-                            errinfo = "{0}-{1}-{2} is not match\n".format(db,table,primary)     
-                            rd.lpush(errkey,errinfo)
+                            #errinfo = "{0}-{1}-{2} is not match\n".format(primary)     
+                            rd.rpush(errkey,primary)
                             '''
                             with open(errlog,'a+') as f1:
                                 f1.write("{0}-{1}-{2} is not match\n".format(db,table,primary))
@@ -138,8 +140,8 @@ def compare(db,table,priname,colunms,pri):
                         else:
                             raise Exception("Empty result.")
                     except Exception as e:
-                        errinfo = "{0}-{1}-{2} error:{3}\n".format(db,table,primary,e)
-                        rd.lpush(errkey,errinfo)
+                        #errinfo = "{0}-{1}-{2} error:{3}\n".format(db,table,primary,e)
+                        rd.rpush(errkey,primary)
                         '''
                         with open(errlog,'a+') as f1:
                             f1.write("{0}-{1}-{2} error:{3}\n".format(db,table,primary,e))

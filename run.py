@@ -67,7 +67,7 @@ def main():
             errkeyname = "error-{0}-{1}".format(DB,TABLE)
             print("errinfo:{0}".format(rd.lrange(errkeyname,0,1)))
             okkeyname = "ok-{0}-{1}".format(DB,TABLE)
-            print("okinfo:{0}".format(rd.lrange(okkeyname,0,1)))
+            print("okinfo:{0}\n".format(rd.lrange(okkeyname,0,1)))
             
                 
 
