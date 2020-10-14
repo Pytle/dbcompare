@@ -60,7 +60,7 @@ def selector(db,table,priname,colstr,startpri,endpri):
             return 0
         
 @app.task
-def compare(db,table,priname,colunms,pri):
+def compare(db,table,priname,colunms,pri,errlog):
     if not pri:
         return 254
     # redis存储    
@@ -133,15 +133,15 @@ def compare(db,table,priname,colunms,pri):
                     try:
                         _r = selector(db,table,priname,colstr,primary,primary)
                         if _r == 1:
-                            continue
+                            rd.rpush(okkey,primary)
                         elif not _r:
                             #errinfo = "{0}-{1}-{2} is not match\n".format(primary)     
                             rd.rpush(errkey,primary)
                             print("not _r push ok")
-                            '''
+                            
                             with open(errlog,'a+') as f1:
                                 f1.write("{0}-{1}-{2} is not match\n".format(db,table,primary))
-                            '''
+                            
                         else:
                             raise Exception("Empty result.")
                     except Exception as e:
