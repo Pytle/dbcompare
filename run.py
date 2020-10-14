@@ -8,24 +8,14 @@ from tasks import test,compare
 from sqlutils import SRCMYSQL,DSTMYSQL,db_table_column_info,redisins
 
 
-def taskstart(src_db,DB,TABLE,PRI,colunms,log,errlog):
+def taskstart(src_db,DB,TABLE,PRI,colunms):
     MTU = 1000  #主键切片大小
     select_pri_sql = 'select {0} from {1}.{2};'.format(PRI,DB,TABLE)
     conn = src_db.db_connect(DB)
     pri = src_db.db_select(conn,select_pri_sql)
     num = int(len(pri) / MTU)   #控制生成切片大小
     temp_pri = []       #临时存放主键
-    
-    # 删除key
-    rd = redisins.getins()
-    errkeyname = "error-{0}-{1}".format(DB,TABLE)
-    if rd.keys(errkeyname):
-        rd.delete(*rd.keys(errkeyname))
-    okkeyname = "ok-{0}-{1}".format(DB,TABLE)
-    if rd.keys(okkeyname):
-        rd.delete(*rd.keys(okkeyname))
-
-        
+     
     for a in range(num + 1):
         startindex = a*MTU
         temp_pri = []           #初始化主键列表
@@ -53,7 +43,15 @@ def main():
     log = os.path.join(logdir,logname)
     errlog = os.path.join(logdir,errname)
 
-    
+    # 初始化redis,删除key
+    rd = redisins.getins()
+    errkeyname = "error-{0}-{1}".format(DB,TABLE)
+    if rd.keys(errkeyname):
+        rd.delete(errkeyname)
+    okkeyname = "ok-{0}-{1}".format(DB,TABLE)
+    if rd.keys(okkeyname):
+        rd.delete(okkeyname)
+        
     # 消费者    
     for db,tables in db_table_column_info.items():
         DB = db
@@ -62,7 +60,7 @@ def main():
             TABLE = k
             PRI = v['prikey']
             colunms = v['columns']
-            taskstart(SRCMYSQL,DB,TABLE,PRI,colunms,log,errlog)
+            taskstart(SRCMYSQL,DB,TABLE,PRI,colunms)
             
             errkeyname = "error-{0}-{1}".format(DB,TABLE)
             print("errinfo:{0}".format(rd.lrange(errkeyname,0,1)))
