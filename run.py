@@ -8,7 +8,7 @@ from tasks import test,compare
 from sqlutils import SRCMYSQL,DSTMYSQL,db_table_column_info,redisins
 
 
-def taskstart(src_db,DB,TABLE,PRI,colunms,errlog):
+def taskstart(src_db,DB,TABLE,PRI,colunms):
     MTU = 1000  #主键切片大小
     select_pri_sql = 'select {0} from {1}.{2};'.format(PRI,DB,TABLE)
     conn = src_db.db_connect(DB)
@@ -24,7 +24,7 @@ def taskstart(src_db,DB,TABLE,PRI,colunms,errlog):
         else:
             endindex = (a+1)*MTU 
         temp_pri = [ pri[i][0] for i in range(startindex,endindex) ]  #主键列表一次存储最多MTU个值                  
-        tid = compare.delay(DB,TABLE,PRI,colunms,temp_pri,errlog)
+        tid = compare.delay(DB,TABLE,PRI,colunms,temp_pri)
     if tid.get():
         print("finish.")
             
@@ -62,12 +62,12 @@ def main():
             if rd.keys(okkeyname):
                 rd.delete(okkeyname)
                 
-            taskstart(SRCMYSQL,DB,TABLE,PRI,colunms,errlog)
+            taskstart(SRCMYSQL,DB,TABLE,PRI,colunms)
             
             errkeyname = "error-{0}-{1}".format(DB,TABLE)
-            print("errinfo:{0}".format(rd.lrange(errkeyname,-1)))
+            print("errinfo:{0}".format(rd.lrange(errkeyname,0,-1)))
             okkeyname = "ok-{0}-{1}".format(DB,TABLE)
-            print("okinfo:{0}\n".format(rd.lrange(okkeyname,-1)))
+            print("okinfo:{0}\n".format(rd.lrange(okkeyname,0,-1)))
             
                 
 
