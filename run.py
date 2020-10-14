@@ -18,12 +18,13 @@ def taskstart(src_db,DB,TABLE,PRI,colunms,log,errlog):
     
     # 删除key
     rd = redisins.getins()
-    errkeyname = "error-{0}-{1}".format(db,table)
+    errkeyname = "error-{0}-{1}".format(DB,TABLE)
     if rd.keys(errkeyname):
         rd.delete(*rd.keys(errkeyname))
-    okkeyname = "ok-{0}-{1}".format(db,table)
+    okkeyname = "ok-{0}-{1}".format(DB,TABLE)
     if rd.keys(okkeyname):
-        rd.delete(*rd.keys(okkeyname)
+        rd.delete(*rd.keys(okkeyname))
+
         
     for a in range(num + 1):
         startindex = a*MTU
