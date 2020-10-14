@@ -129,7 +129,7 @@ def compare(db,table,priname,colunms,pri):
                 continue
             else:
                 # 逐项比较
-                for primary in _list:
+                for primary in _list: 
                     try:
                         _r = selector(db,table,priname,colstr,primary,primary)
                         if _r == 1:
