@@ -68,6 +68,7 @@ def selector(db,table,priname,colstr,startpri,endpri):
         return 255
         
         if src == dst:
+            print(srcinfo,dstinfo)
             return 1      
         else :
             return 0
