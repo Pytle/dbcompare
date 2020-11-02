@@ -67,10 +67,10 @@ def selector(db,table,priname,colstr,startpri,endpri):
     except Exception as e:
         return 255
         
-        if src == dst:
-            return 1      
-        else :
-            return 0
+    if src == dst:
+        return 1      
+    else :
+        return 0
         
 @app.task
 def compare(db,table,priname,colunms,pri):
