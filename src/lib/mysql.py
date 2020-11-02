@@ -20,11 +20,12 @@ class Mysql():
                 host = self.host,
                 user = self.user,
                 database = db,
+                port = int(self.port),
                 password = self.password,
                 charset = self.charset,
             )
         except Exception as e:
-            print('mysql__db_connect error :',e)           
+            print('mysql__db_connect error :',e,host,user,database,port,password,charset)           
             exit()
 
         return self.conn
