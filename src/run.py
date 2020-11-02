@@ -13,8 +13,8 @@ def taskstart(src_db,DB,TABLE,PRI,colunms):
     select_pri_sql = 'select {0} from {1}.{2};'.format(PRI,DB,TABLE)
     conn = src_db.db_connect(DB)
     pri = src_db.db_select(conn,select_pri_sql)
-    pri = list(pri)
-    pri = pri.sort()
+    pri = [ pri[i][0] for i in range(0,-1)]
+    pri.sort()
     num = int(len(pri) / MTU)   #控制生成切片大小
     temp_pri = []       #临时存放主键
      
@@ -25,7 +25,7 @@ def taskstart(src_db,DB,TABLE,PRI,colunms):
             endindex =  len(pri)
         else:
             endindex = (a+1)*MTU 
-        temp_pri = [ pri[i][0] for i in range(startindex,endindex) ]  #主键列表一次存储最多MTU个值                  
+        temp_pri = [ pri[i] for i in range(startindex,endindex) ]  #主键列表一次存储最多MTU个值                  
         tid = compare.delay(DB,TABLE,PRI,colunms,temp_pri)
     if tid.get():
         print("{0} finish.".format(TABLE))
