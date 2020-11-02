@@ -50,14 +50,14 @@ def selector(db,table,priname,colstr,startpri,endpri):
         endpri = int(endpri)
     if isinstance(startpri,int):
         if startpri == endpri:
-            sql = 'select  crc32(concat_ws(\',\'{1}))  from `{2}`.`{3}` where (`{4}` = {5})'.format(priname,colstr,db,table,priname,startpri)
+            sql = 'select  concat_ws(\',\'{1}) from `{2}`.`{3}` where (`{4}` = {5})'.format(priname,colstr,db,table,priname,startpri)
         else:
-            sql = 'select  crc32(concat_ws(\',\'{1}))  from `{2}`.`{3}` where (`{4}` = {5}) or (`{4}` > {5} and `{4}` < {6}) or (`{4}` = {6})'.format(priname,colstr,db,table,priname,startpri,endpri)
+            sql = 'select  concat_ws(\',\'{1})  from `{2}`.`{3}` where (`{4}` = {5}) or (`{4}` > {5} and `{4}` < {6}) or (`{4}` = {6})'.format(priname,colstr,db,table,priname,startpri,endpri)
     else:
         if startpri == endpri:
-            sql = 'select  crc32(concat_ws(\',\'{1}))  from `{2}`.`{3}` where (`{4}` = \'{5}\')'.format(priname,colstr,db,table,priname,startpri)
+            sql = 'select  concat_ws(\',\'{1})  from `{2}`.`{3}` where (`{4}` = \'{5}\')'.format(priname,colstr,db,table,priname,startpri)
         else:
-            sql = 'select  crc32(concat_ws(\',\'{1}))  from `{2}`.`{3}` where (`{4}` = \'{5}\') or (`{4}` > \'{5}\' and `{4}` < \'{6}\') or (`{4}` = \'{6}\')'.format(priname,colstr,db,table,priname,startpri,endpri)
+            sql = 'select  concat_ws(\',\'{1})  from `{2}`.`{3}` where (`{4}` = \'{5}\') or (`{4}` > \'{5}\' and `{4}` < \'{6}\') or (`{4}` = \'{6}\')'.format(priname,colstr,db,table,priname,startpri,endpri)
     
     try:
         srcinfo = SRCMYSQL.db_select(SRCMYSQL.db_connect(db),sql)
@@ -68,7 +68,6 @@ def selector(db,table,priname,colstr,startpri,endpri):
         return 255
         
         if src == dst:
-            print(srcinfo,dstinfo)
             return 1      
         else :
             return 0
