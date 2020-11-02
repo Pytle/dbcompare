@@ -44,10 +44,15 @@ def splitlist(LIST,length):
     return buffer_list
 
     
-def selector(db,table,priname,colstr,startpri,endpri):
+def selector(db,table,priname,colstr,startpri,endpri,ptype):
+    '''
     if startpri.isdigit() and endpri.isdigit():
         startpri = int(startpri)
         endpri = int(endpri)
+    '''
+    if ptype == "INT":
+        startpri = int(startpri)
+        endpri = int(endpri)        
     if isinstance(startpri,int):
         if startpri == endpri:
             sql = 'select  crc32(concat_ws(\',\'{1})) from `{2}`.`{3}` where (`{4}` = {5})'.format(priname,colstr,db,table,priname,startpri)
@@ -73,7 +78,7 @@ def selector(db,table,priname,colstr,startpri,endpri):
         return 0
         
 @app.task
-def compare(db,table,priname,colunms,pri):
+def compare(db,table,priname,colunms,pri,ptype):
     if not pri:
         return 254
     # redis存储    
@@ -91,14 +96,14 @@ def compare(db,table,priname,colunms,pri):
     for colunm in colunms:
         colstr = colstr + ',`{}`'.format(colunm)
     
-    result = selector(db,table,priname,colstr,startpri,endpri)
+    result = selector(db,table,priname,colstr,startpri,endpri,ptype)
     
     # 处理255情况
     if result == 255:
         # 逐项比较
         for primary in pri:
             try:
-                r = selector(db,table,priname,colstr,primary,primary)
+                r = selector(db,table,priname,colstr,primary,primary,ptype)
                 if r == 1:
                     #okinfo = 'ok:{0}-{1} {2}-{3},sql:{4}\n'.format(db,table,primary,primary,sql)
                     rd.rpush(okkey,primary)
@@ -130,14 +135,14 @@ def compare(db,table,priname,colunms,pri):
         for _list in result_list:
             startpri = _list[0]
             endpri = _list[-1]
-            r = selector(db,table,priname,colstr,startpri,endpri)
+            r = selector(db,table,priname,colstr,startpri,endpri,ptype)
             if r == 1 :
                 continue
             else:
                 # 逐项比较
                 for primary in _list: 
                     try:
-                        _r = selector(db,table,priname,colstr,primary,primary)
+                        _r = selector(db,table,priname,colstr,primary,primary,ptype)
                         if _r == 1:
                             rd.rpush(okkey,primary)
                         elif not _r:

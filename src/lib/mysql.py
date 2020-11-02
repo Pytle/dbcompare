@@ -76,13 +76,14 @@ class Mysql():
 
                     db_table_column_info[db][table] = {}
                     table_create_sql = 'select COLUMN_NAME from information_schema.COLUMNS where TABLE_NAME = \'{0}\';'.format(table)
-                    table_pri_sql = 'select COLUMN_NAME from information_schema.COLUMNS where TABLE_NAME = \'{0}\' and COLUMN_KEY = \'PRI\';'.format(table)
+                    table_pri_sql = 'select COLUMN_NAME,DATA_TYPE from information_schema.COLUMNS where TABLE_NAME = \'{0}\' and COLUMN_KEY = \'PRI\';'.format(table)
                     table_create_result =  self.db_select(conn,table_create_sql)
                     table_pri_result = self.db_select(conn,table_pri_sql)
                     table_columns = []
                     for column in table_create_result:
                         table_columns.append(column[0])
                     db_table_column_info[db][table]['prikey'] = table_pri_result[0][0]
+                    db_table_column_info[db][table]['pritype'] = table_pri_result[0][1]
                     db_table_column_info[db][table]['columns'] = table_columns
         db_table_column_info = json.dumps(db_table_column_info)
         self.__close()

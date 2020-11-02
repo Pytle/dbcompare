@@ -8,7 +8,7 @@ from tasks import test,compare
 from sqlutils import SRCMYSQL,DSTMYSQL,db_table_column_info,redisins
 
 
-def taskstart(src_db,DB,TABLE,PRI,colunms):
+def taskstart(src_db,DB,TABLE,PRI,colunms,ptype):
     MTU = 1000  #主键切片大小
     select_pri_sql = 'select {0} from {1}.{2};'.format(PRI,DB,TABLE)
     conn = src_db.db_connect(DB)
@@ -24,7 +24,7 @@ def taskstart(src_db,DB,TABLE,PRI,colunms):
         else:
             endindex = (a+1)*MTU 
         temp_pri = [ pri[i][0] for i in range(startindex,endindex) ]  #主键列表一次存储最多MTU个值                  
-        tid = compare.delay(DB,TABLE,PRI,colunms,temp_pri)
+        tid = compare.delay(DB,TABLE,PRI,colunms,temp_pri,ptype)
     if tid.get():
         print("{0} finish.".format(TABLE))
             
@@ -52,6 +52,7 @@ def main():
             TABLE = k
             PRI = v['prikey']
             colunms = v['columns']
+            PRITYPE = v['pritype']
             
             # 初始化redis,删除key
             rd = redisins.getins()
@@ -61,8 +62,13 @@ def main():
             okkeyname = "ok-{0}-{1}".format(DB,TABLE)
             if rd.keys(okkeyname):
                 rd.delete(okkeyname)
-                
-            taskstart(SRCMYSQL,DB,TABLE,PRI,colunms)
+            
+            print("{0} is start.".format(TABLE))
+            if "int" in PRITYPE:
+                ptype = "INT"
+            else:
+                ptype = "STR"
+            taskstart(SRCMYSQL,DB,TABLE,PRI,colunms,ptype)
             
             errkeyname = "error-{0}-{1}".format(DB,TABLE)
             errinfo = rd.lrange(errkeyname,0,-1)
