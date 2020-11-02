@@ -13,7 +13,7 @@ def taskstart(src_db,DB,TABLE,PRI,colunms):
     select_pri_sql = 'select {0} from {1}.{2};'.format(PRI,DB,TABLE)
     conn = src_db.db_connect(DB)
     pri = src_db.db_select(conn,select_pri_sql)
-    pri = [ pri[i][0] for i in range(0,-1)]
+    pri = [ pri[i][0] for i in range(len(pri))]
     pri.sort()
     num = int(len(pri) / MTU)   #控制生成切片大小
     temp_pri = []       #临时存放主键
