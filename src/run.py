@@ -7,19 +7,36 @@ import json
 from tasks import test,compare
 from sqlutils import SRCMYSQL,DSTMYSQL,db_table_column_info,redisins
 
+'''
+返回值说明：
+0 通过校验
+1 发现不相同数据并找到
+2 批量校验出错，触发逐项校验
+252 空主键
+253 空表
+254 空主键被传
+255 未知错误
+'''
+
 
 def taskstart(src_db,DB,TABLE,PRI,colunms,ptype):
     MTU = 1000  #主键切片大小
     conn = src_db.db_connect(DB)
     #得到主键数量
-    select_prilenght_sql = 'select count({0}) from {1}.{2};'.format(PRI,DB,TABLE)
-    prilenght = src_db.db_select(conn,select_prilenght_sql)
-    prilenght = prilenght[0][0]
+    try:
+        select_prilenght_sql = 'select count({0}) from {1}.{2};'.format(PRI,DB,TABLE)
+        prilenght = src_db.db_select(conn,select_prilenght_sql)
+        prilenght = prilenght[0][0]
+    except Exception as e:
+        return 252
     
     #得到第一个主键名称
-    select_firstpri_sql = 'select {0} from {1}.{2} limit 1;'.format(PRI,DB,TABLE)
-    firstpri = src_db.db_select(conn,select_firstpri_sql)
-    firstpri = firstpri[0][0]
+    try:
+        select_firstpri_sql = 'select {0} from {1}.{2} limit 1;'.format(PRI,DB,TABLE)
+        firstpri = src_db.db_select(conn,select_firstpri_sql)
+        firstpri = firstpri[0][0]
+    except Exception as e:
+        return 253
     
     #切片查询，每次查MTU个主键
     num = int(prilenght / MTU)

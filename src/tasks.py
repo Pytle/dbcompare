@@ -47,14 +47,14 @@ def splitlist(LIST,length):
 def selector(db,table,priname,colstr,startpri,endpri,ptype):   
     if ptype == "INT":
         if startpri == endpri:
-            sql = 'select  concat_ws(\',\'{1}) from `{2}`.`{3}` where (`{4}` = {5})'.format(priname,colstr,db,table,priname,startpri)
+            sql = 'select  crc32(concat_ws(\',\'{1})) from `{2}`.`{3}` where (`{4}` = {5})'.format(priname,colstr,db,table,priname,startpri)
         else:
-            sql = 'select  concat_ws(\',\'{1})  from `{2}`.`{3}` where (`{4}` = {5}) or (`{4}` > {5} and `{4}` < {6}) or (`{4}` = {6})'.format(priname,colstr,db,table,priname,startpri,endpri)
+            sql = 'select  crc32(concat_ws(\',\'{1}))  from `{2}`.`{3}` where (`{4}` = {5}) or (`{4}` > {5} and `{4}` < {6}) or (`{4}` = {6})'.format(priname,colstr,db,table,priname,startpri,endpri)
     else:
         if startpri == endpri:
-            sql = 'select  concat_ws(\',\'{1})  from `{2}`.`{3}` where (`{4}` = \'{5}\')'.format(priname,colstr,db,table,priname,startpri)
+            sql = 'select  crc32(concat_ws(\',\'{1}))  from `{2}`.`{3}` where (`{4}` = \'{5}\')'.format(priname,colstr,db,table,priname,startpri)
         else:
-            sql = 'select  concat_ws(\',\'{1})  from `{2}`.`{3}` where (`{4}` = \'{5}\') or (`{4}` > \'{5}\' and `{4}` < \'{6}\') or (`{4}` = \'{6}\')'.format(priname,colstr,db,table,priname,startpri,endpri)
+            sql = 'select  crc32(concat_ws(\',\'{1}))  from `{2}`.`{3}` where (`{4}` = \'{5}\') or (`{4}` > \'{5}\' and `{4}` < \'{6}\') or (`{4}` = \'{6}\')'.format(priname,colstr,db,table,priname,startpri,endpri)
     
     try:
         srcinfo = SRCMYSQL.db_select(SRCMYSQL.db_connect(db),sql)
