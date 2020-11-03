@@ -147,9 +147,14 @@ def main():
             else:
                 ptype = "STR"
                 
-            #生产者
-            #t = threading.Thread(target)
-            taskstart(SRCMYSQL,DB,TABLE,PRI,colunms,ptype,errlog,log)
+            #生产者，多线程
+            t = threading.Thread(target=taskstart,args=(SRCMYSQL,DB,TABLE,PRI,colunms,ptype,errlog,log,) )
+            threads.append(t)
+            t.start()
+            #taskstart(SRCMYSQL,DB,TABLE,PRI,colunms,ptype,errlog,log)
+            
+        for t in threads:
+            t.join()        
             
 
            
