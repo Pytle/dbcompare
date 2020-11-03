@@ -57,30 +57,6 @@ def taskstart(src_db,DB,TABLE,PRI,colunms,ptype,errlog,log):
         except Exception as e:
             print(e)
             
-    rd = redisins.getins()
-    errkeyname = "error-{0}-{1}".format(DB,TABLE)
-    errinfo = rd.lrange(errkeyname,0,-1)
-    okkeyname = "ok-{0}-{1}".format(DB,TABLE)
-    okinfo = rd.lrange(okkeyname,0,-1)
-    
-    
-    errdict = {}
-    errdict[errkeyname] = errinfo
-    errdict['total'] = len(errinfo)
-    errdict = json.dumps(errdict)
-    
-    okdict = {}
-    okdict[okkeyname] = okinfo
-    okdict['total'] = len(okinfo)
-    okdict = json.dumps(okdict)
-    
-    with open(errlog,'a+') as f:
-        f.write("{0}\n".format(errdict))
-        f.close()
-    
-    with open(log,'a+') as f1:
-        f1.write("{0}\n".format(okdict))
-        f1.close()
     '''
     select_pri_sql = 'select {0} from {1}.{2};'.format(PRI,DB,TABLE)
     conn = src_db.db_connect(DB)
@@ -102,6 +78,32 @@ def taskstart(src_db,DB,TABLE,PRI,colunms,ptype,errlog,log):
     if tid.get():
         print("{0} finish.".format(TABLE))
         
+        
+    rd = redisins.getins()
+    errkeyname = "error-{0}-{1}".format(DB,TABLE)
+    errinfo = rd.lrange(errkeyname,0,-1)
+    okkeyname = "ok-{0}-{1}".format(DB,TABLE)
+    okinfo = rd.lrange(okkeyname,0,-1)
+    
+    
+    errdict = {}
+    errdict[errkeyname] = errinfo
+    errdict['total'] = len(errinfo)
+    errdict = json.dumps(errdict)
+    
+    okdict = {}
+    okdict[okkeyname] = okinfo
+    okdict['total'] = len(okinfo)
+    okdict = json.dumps(okdict)
+    
+    with open(errlog,'a+') as f:
+        f.write("{0}\n".format(errdict))
+    f.close()
+    
+    with open(log,'a+') as f1:
+        f1.write("{0}\n".format(okdict))
+    f1.close()
+    
             
 def main():
     # 初始化日志目录
