@@ -19,90 +19,91 @@ import threading
 255 未知错误
 '''
 
-
+# 线程数量控制
 sem=threading.Semaphore(5)
 
 def taskstart(src_db,DB,TABLE,PRI,colunms,ptype,errlog,log):
-    MTU = 5000  #主键切片大小
-    conn = src_db.db_connect(DB)
-    #得到主键数量
-    try:
-        select_prilenght_sql = 'select count({0}) from {1}.{2};'.format(PRI,DB,TABLE)
-        prilenght = src_db.db_select(conn,select_prilenght_sql)
-        prilenght = prilenght[0][0]
-    except Exception as e:
-        return 252
-    
-    #得到第一个主键名称
-    try:
-        select_firstpri_sql = 'select {0} from {1}.{2} limit 1;'.format(PRI,DB,TABLE)
-        firstpri = src_db.db_select(conn,select_firstpri_sql)
-        firstpri = firstpri[0][0]
-    except Exception as e:
-        return 253
-    
-    #切片查询，每次查MTU个主键
-    num = int(prilenght / MTU)
-    temp_pri = []
-    for a in range(num + 1):
+    with sem:
+        MTU = 5000  #主键切片大小
+        conn = src_db.db_connect(DB)
+        #得到主键数量
         try:
-            if ptype == "INT":
-                select_pri_sql = 'select {0} from {1}.{2} where ({0} = {3}) or ({0} > {3}) limit {4};'.format(PRI,DB,TABLE,firstpri,MTU)
-            else:
-                select_pri_sql = 'select {0} from {1}.{2} where ({0} = \'{3}\') or {0} > \'{3}\' limit {4};'.format(PRI,DB,TABLE,firstpri,MTU)
-            pri = src_db.db_select(conn,select_pri_sql)
-            temp_pri = [ pri[i][0] for i in range(0,len(pri)) ]  #主键列表一次存储最多MTU个值
-            tid = compare.delay(DB,TABLE,PRI,colunms,temp_pri,ptype)
-            firstpri = temp_pri[-1]
+            select_prilenght_sql = 'select count({0}) from {1}.{2};'.format(PRI,DB,TABLE)
+            prilenght = src_db.db_select(conn,select_prilenght_sql)
+            prilenght = prilenght[0][0]
         except Exception as e:
-            print(e)
-            
-    '''
-    select_pri_sql = 'select {0} from {1}.{2};'.format(PRI,DB,TABLE)
-    conn = src_db.db_connect(DB)
-    pri = src_db.db_select(conn,select_pri_sql)
-    num = int(len(pri) / MTU)   #控制生成切片大小
-    temp_pri = []       #临时存放主键
-     
-    for a in range(num + 1):
-        startindex = a*MTU
-        temp_pri = []           #初始化主键列表
-        if a == num:            # 如果到了最后一轮，以防不足1000，最后索引就取总长度
-            endindex =  len(pri)
-        else:
-            endindex = (a+1)*MTU 
-        temp_pri = [ pri[i][0] for i in range(startindex,endindex) ]  #主键列表一次存储最多MTU个值                  
-        tid = compare.delay(DB,TABLE,PRI,colunms,temp_pri,ptype)
-    '''
+            return 252
+        
+        #得到第一个主键名称
+        try:
+            select_firstpri_sql = 'select {0} from {1}.{2} limit 1;'.format(PRI,DB,TABLE)
+            firstpri = src_db.db_select(conn,select_firstpri_sql)
+            firstpri = firstpri[0][0]
+        except Exception as e:
+            return 253
+        
+        #切片查询，每次查MTU个主键
+        num = int(prilenght / MTU)
+        temp_pri = []
+        for a in range(num + 1):
+            try:
+                if ptype == "INT":
+                    select_pri_sql = 'select {0} from {1}.{2} where ({0} = {3}) or ({0} > {3}) limit {4};'.format(PRI,DB,TABLE,firstpri,MTU)
+                else:
+                    select_pri_sql = 'select {0} from {1}.{2} where ({0} = \'{3}\') or {0} > \'{3}\' limit {4};'.format(PRI,DB,TABLE,firstpri,MTU)
+                pri = src_db.db_select(conn,select_pri_sql)
+                temp_pri = [ pri[i][0] for i in range(0,len(pri)) ]  #主键列表一次存储最多MTU个值
+                tid = compare.delay(DB,TABLE,PRI,colunms,temp_pri,ptype)
+                firstpri = temp_pri[-1]
+            except Exception as e:
+                print(e)
+                
+        '''
+        select_pri_sql = 'select {0} from {1}.{2};'.format(PRI,DB,TABLE)
+        conn = src_db.db_connect(DB)
+        pri = src_db.db_select(conn,select_pri_sql)
+        num = int(len(pri) / MTU)   #控制生成切片大小
+        temp_pri = []       #临时存放主键
+         
+        for a in range(num + 1):
+            startindex = a*MTU
+            temp_pri = []           #初始化主键列表
+            if a == num:            # 如果到了最后一轮，以防不足1000，最后索引就取总长度
+                endindex =  len(pri)
+            else:
+                endindex = (a+1)*MTU 
+            temp_pri = [ pri[i][0] for i in range(startindex,endindex) ]  #主键列表一次存储最多MTU个值                  
+            tid = compare.delay(DB,TABLE,PRI,colunms,temp_pri,ptype)
+        '''
 
-    if tid.get():
-        print("{0} finish.".format(TABLE))
+        if tid.get():
+            print("{0} finish.".format(TABLE))
+            
+            
+        rd = redisins.getins()
+        errkeyname = "error-{0}-{1}".format(DB,TABLE)
+        errinfo = rd.lrange(errkeyname,0,-1)
+        okkeyname = "ok-{0}-{1}".format(DB,TABLE)
+        okinfo = rd.lrange(okkeyname,0,-1)
         
         
-    rd = redisins.getins()
-    errkeyname = "error-{0}-{1}".format(DB,TABLE)
-    errinfo = rd.lrange(errkeyname,0,-1)
-    okkeyname = "ok-{0}-{1}".format(DB,TABLE)
-    okinfo = rd.lrange(okkeyname,0,-1)
-    
-    
-    errdict = {}
-    errdict[errkeyname] = errinfo
-    errdict['total'] = len(errinfo)
-    errdict = json.dumps(errdict)
-    
-    okdict = {}
-    okdict[okkeyname] = okinfo
-    okdict['total'] = len(okinfo)
-    okdict = json.dumps(okdict)
-    
-    with open(errlog,'a+') as f:
-        f.write("{0}\n".format(errdict))
-    f.close()
-    
-    with open(log,'a+') as f1:
-        f1.write("{0}\n".format(okdict))
-    f1.close()
+        errdict = {}
+        errdict[errkeyname] = errinfo
+        errdict['total'] = len(errinfo)
+        errdict = json.dumps(errdict)
+        
+        okdict = {}
+        okdict[okkeyname] = okinfo
+        okdict['total'] = len(okinfo)
+        okdict = json.dumps(okdict)
+        
+        with open(errlog,'a+') as f:
+            f.write("{0}\n".format(errdict))
+        f.close()
+        
+        with open(log,'a+') as f1:
+            f1.write("{0}\n".format(okdict))
+        f1.close()
     
             
 def main():
