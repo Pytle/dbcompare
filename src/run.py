@@ -22,7 +22,7 @@ def taskstart(src_db,DB,TABLE,PRI,colunms,ptype):
     firstpri = firstpri[0][0]
     
     #切片查询，每次查MTU个主键
-    num = int(len(prilenght) / MTU)
+    num = int(prilenght / MTU)
     temp_pri = []
     for a in range(num + 1):
         if ptype == "INT":
