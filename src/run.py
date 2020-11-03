@@ -106,6 +106,7 @@ def main():
             errinfo = rd.lrange(errkeyname,0,-1)
             okkeyname = "ok-{0}-{1}".format(DB,TABLE)
             okinfo = rd.lrange(okkeyname,0,-1)
+            print(len(okinfo))
             
             errdict = {}
             errdict[errkeyname] = errinfo
