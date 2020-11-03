@@ -54,11 +54,10 @@ def taskstart(src_db,DB,TABLE,PRI,colunms,ptype):
         temp_pri = [ pri[i][0] for i in range(startindex,endindex) ]  #主键列表一次存储最多MTU个值                  
         tid = compare.delay(DB,TABLE,PRI,colunms,temp_pri,ptype)
     '''
-    
-    '''
+
     if tid.get():
         print("{0} finish.".format(TABLE))
-    '''
+        
             
 def main():
     # 初始化日志目录
