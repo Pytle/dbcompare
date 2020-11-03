@@ -122,7 +122,7 @@ def compare(db,table,priname,colunms,pri,ptype):
         return 0
         
     elif not result:
-        MTU = 100
+        MTU = 500
         result_list = splitlist(pri,MTU)
         for _list in result_list:
             startpri = _list[0]

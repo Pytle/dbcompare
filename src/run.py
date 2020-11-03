@@ -20,7 +20,7 @@ from sqlutils import SRCMYSQL,DSTMYSQL,db_table_column_info,redisins
 
 
 def taskstart(src_db,DB,TABLE,PRI,colunms,ptype):
-    MTU = 1000  #主键切片大小
+    MTU = 5000  #主键切片大小
     conn = src_db.db_connect(DB)
     #得到主键数量
     try:
