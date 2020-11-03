@@ -105,13 +105,16 @@ def main():
             errinfo = rd.lrange(errkeyname,0,-1)
             okkeyname = "ok-{0}-{1}".format(DB,TABLE)
             okinfo = rd.lrange(okkeyname,0,-1)
-            print(len(okinfo))
+            
             
             errdict = {}
             errdict[errkeyname] = errinfo
+            errdict['total'] = len(errinfo)
             errdict = json.dumps(errdict)
+            
             okdict = {}
             okdict[okkeyname] = okinfo
+            okdict['total'] = len(okinfo)
             okdict = json.dumps(okdict)
             
             with open(errlog,'a+') as f:
