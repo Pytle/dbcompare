@@ -27,9 +27,9 @@ def taskstart(src_db,DB,TABLE,PRI,colunms,ptype):
     for a in range(num + 1):
         try:
             if ptype == "INT":
-                select_pri_sql = 'select {0} from {1}.{2} where {0} > {3} limit {4};'.format(PRI,DB,TABLE,firstpri,MTU)
+                select_pri_sql = 'select {0} from {1}.{2} where ({0} = {3}) or ({0} > {3}) limit {4};'.format(PRI,DB,TABLE,firstpri,MTU)
             else:
-                select_pri_sql = 'select {0} from {1}.{2} where {0} > \'{3}\' limit {4};'.format(PRI,DB,TABLE,firstpri,MTU)
+                select_pri_sql = 'select {0} from {1}.{2} where ({0} = \'{3}\') or {0} > \'{3}\' limit {4};'.format(PRI,DB,TABLE,firstpri,MTU)
             pri = src_db.db_select(conn,select_pri_sql)
             temp_pri = [ pri[i][0] for i in range(0,len(pri)) ]  #主键列表一次存储最多MTU个值
             tid = compare.delay(DB,TABLE,PRI,colunms,temp_pri,ptype)
