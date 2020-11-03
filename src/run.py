@@ -6,6 +6,7 @@ import time
 import json
 from tasks import test,compare
 from sqlutils import SRCMYSQL,DSTMYSQL,db_table_column_info,redisins
+import threading
 
 '''
 返回值说明：
@@ -19,7 +20,9 @@ from sqlutils import SRCMYSQL,DSTMYSQL,db_table_column_info,redisins
 '''
 
 
-def taskstart(src_db,DB,TABLE,PRI,colunms,ptype):
+sem=threading.Semaphore(5)
+
+def taskstart(src_db,DB,TABLE,PRI,colunms,ptype,errlog,log):
     MTU = 5000  #主键切片大小
     conn = src_db.db_connect(DB)
     #得到主键数量
@@ -53,6 +56,31 @@ def taskstart(src_db,DB,TABLE,PRI,colunms,ptype):
             firstpri = temp_pri[-1]
         except Exception as e:
             print(e)
+            
+    rd = redisins.getins()
+    errkeyname = "error-{0}-{1}".format(DB,TABLE)
+    errinfo = rd.lrange(errkeyname,0,-1)
+    okkeyname = "ok-{0}-{1}".format(DB,TABLE)
+    okinfo = rd.lrange(okkeyname,0,-1)
+    
+    
+    errdict = {}
+    errdict[errkeyname] = errinfo
+    errdict['total'] = len(errinfo)
+    errdict = json.dumps(errdict)
+    
+    okdict = {}
+    okdict[okkeyname] = okinfo
+    okdict['total'] = len(okinfo)
+    okdict = json.dumps(okdict)
+    
+    with open(errlog,'a+') as f:
+        f.write("{0}\n".format(errdict))
+        f.close()
+    
+    with open(log,'a+') as f1:
+        f1.write("{0}\n".format(okdict))
+        f1.close()
     '''
     select_pri_sql = 'select {0} from {1}.{2};'.format(PRI,DB,TABLE)
     conn = src_db.db_connect(DB)
@@ -90,11 +118,12 @@ def main():
     log = os.path.join(logdir,logname)
     errlog = os.path.join(logdir,errname)
 
-        
+
     # 执行函数    
     for db,tables in db_table_column_info.items():
         DB = db
         rd = redisins.getins()
+        threads = []
         for k,v in tables.items():
             TABLE = k
             PRI = v['prikey']
@@ -117,32 +146,12 @@ def main():
                 ptype = "STR"
                 
             #生产者
-            taskstart(SRCMYSQL,DB,TABLE,PRI,colunms,ptype)
+            #t = threading.Thread(target)
+            taskstart(SRCMYSQL,DB,TABLE,PRI,colunms,ptype,errlog,log)
             
-            errkeyname = "error-{0}-{1}".format(DB,TABLE)
-            errinfo = rd.lrange(errkeyname,0,-1)
-            okkeyname = "ok-{0}-{1}".format(DB,TABLE)
-            okinfo = rd.lrange(okkeyname,0,-1)
-            
-            
-            errdict = {}
-            errdict[errkeyname] = errinfo
-            errdict['total'] = len(errinfo)
-            errdict = json.dumps(errdict)
-            
-            okdict = {}
-            okdict[okkeyname] = okinfo
-            okdict['total'] = len(okinfo)
-            okdict = json.dumps(okdict)
-            
-            with open(errlog,'a+') as f:
-                f.write("{0}\n".format(errdict))
-            f.close()
-            
-            with open(log,'a+') as f1:
-                f1.write("{0}\n".format(okdict))
-            f1.close()
-             
+
+           
+     
                 
 
 if __name__ == '__main__':
