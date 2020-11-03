@@ -90,7 +90,7 @@ def taskstart(src_db,DB,TABLE,PRI,colunms,ptype,errlog,log):
     errdict = json.dumps(errdict)
     
     okdict = {}
-    okdict[okkeyname] = okinfo
+    #okdict[okkeyname] = okinfo
     okdict['total'] = len(okinfo)
     okdict = json.dumps(okdict)
     
