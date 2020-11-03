@@ -34,7 +34,6 @@ def taskstart(src_db,DB,TABLE,PRI,colunms,ptype):
             temp_pri = [ pri[i][0] for i in range(0,len(pri)) ]  #主键列表一次存储最多MTU个值
             tid = compare.delay(DB,TABLE,PRI,colunms,temp_pri,ptype)
             firstpri = temp_pri[-1]
-            print(firstpri)
         except Exception as e:
             print(e)
     '''
@@ -75,7 +74,7 @@ def main():
     errlog = os.path.join(logdir,errname)
 
         
-    # 消费者    
+    # 执行函数    
     for db,tables in db_table_column_info.items():
         DB = db
         rd = redisins.getins()
@@ -99,6 +98,8 @@ def main():
                 ptype = "INT"
             else:
                 ptype = "STR"
+                
+            #生产者
             taskstart(SRCMYSQL,DB,TABLE,PRI,colunms,ptype)
             
             errkeyname = "error-{0}-{1}".format(DB,TABLE)
